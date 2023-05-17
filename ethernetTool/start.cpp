@@ -5,6 +5,7 @@
 
 extern std::atomic<bool> listenStatus;
 extern std::atomic<bool> messageStatus;
+extern std::atomic<bool> echoStatus;
 
 void getInput(std::vector<std::string> &tokens)
 {
@@ -20,15 +21,10 @@ void getInput(std::vector<std::string> &tokens)
 	} while (tokens.empty());
 }
 
-void selectThread(bool &running, std::vector<std::string> &tokens)
+void selectThread(bool& running, std::vector<std::string>& tokens)
 {
-	// start new thread running echo function.
-	if (tokens[0] == "echo")
-	{
-		//startEchoThread(tokens);
-	}
 	// start new thread running listen function.
-	else if (tokens[0] == "listen")
+	if (tokens[0] == "listen")
 	{
 		startListenThread(tokens);
 	}
@@ -37,23 +33,39 @@ void selectThread(bool &running, std::vector<std::string> &tokens)
 	{
 		startMessageThread(tokens);
 	}
-	// counter
-	else if (tokens[0] == "counter")
+	// start new thread running echo function.
+	else if (tokens[0] == "echo")
 	{
-		startMessageThread(tokens);
+		startEchoThread(tokens);
+	}
+	// stop all active threads.
+	else if (tokens[0] == "stop")
+	{
+		if (tokens[1] == "all")
+		{
+			listenStatus = false;
+			messageStatus = false;
+			echoStatus = false;
+			std::cout << "All threads stopped." << '\n';
+		}
+		else
+		{
+			std::cout << "Invalid command. Try again." << '\n';
+		}
 	}
 	// Terminate active threads, program.
 	else if (tokens[0] == "exit")
 	{
 		listenStatus = false;
 		messageStatus = false;
+		echoStatus = false;
 		running = false;
 		Sleep(750);
 	}
 	// Reject all other inputs.
 	else
 	{
-		std::cout << "Invalid command. Try again." << std::endl;
+		std::cout << "Invalid command. Try again." << '\n';
 	}
 	tokens.clear();
 }

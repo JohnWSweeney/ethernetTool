@@ -5,6 +5,7 @@
 
 std::atomic<bool> listenStatus;
 std::atomic<bool> messageStatus;
+std::atomic<bool> echoStatus;
 
 void startListenThread(std::vector<std::string>& tokens)
 {
@@ -17,7 +18,7 @@ void startListenThread(std::vector<std::string>& tokens)
 			listenThread.detach();
 		}
 		catch (...) {
-			std::cout << "Invalid port number." << std::endl;
+			std::cout << "Error starting listen." << '\n';
 		}
 	}
 	else if (tokens[1] == "stop")
@@ -26,7 +27,7 @@ void startListenThread(std::vector<std::string>& tokens)
 	}
 	else
 	{
-		std::cout << "Invalid command. Try again." << std::endl;
+		std::cout << "Invalid command. Try again." << '\n';
 	}
 }
 
@@ -45,6 +46,32 @@ void startMessageThread(std::vector<std::string>& tokens)
 		messageThread.detach();
 	}
 	catch (...) {
-		std::cout << "message error" << std::endl;
+		std::cout << "Error sending message." << '\n';
+	}
+}
+
+void startEchoThread(std::vector<std::string>& tokens)
+{
+	if (tokens[1] == "start")
+	{
+		try {
+			int portNum = std::stoi(tokens[2]);
+			echoStatus = true;
+			std::thread echoThread(echo, portNum);
+			echoThread.detach();
+		}
+		catch (...)
+		{
+			std::cout << "Error starting echo." << '\n';
+		}
+	}
+	else if (tokens[1] == "stop")
+	{
+		
+		echoStatus = false;
+	}
+	else
+	{
+		std::cout << "Invalid command. Try again." << '\n';
 	}
 }
