@@ -17,4 +17,4 @@ void startCounterThread(std::vector<std::string>& tokens);
 void listener(int localPortNum);
 void message(std::string destIPstr, int destPortNum, std::string msg);
 void echo(int localPortNum);
-void counter(std::string destIPstr, int destPortNum, int start, int end, int delay, bool loop);
+void counter(std::string destIPstr, int destPortNum, int start, int end, unsigned int delay, bool loop);

@@ -90,7 +90,7 @@ void startCounterThread(std::vector<std::string>& tokens)
 			int portNum = std::stoi(tokens[2]);
 			int start = std::stoi(tokens[3]);
 			int end = std::stoi(tokens[4]);
-			int delay = std::stoi(tokens[5]);
+			unsigned int delay = std::stoi(tokens[5]); // detect negative integer.
 
 			bool loop;
 			if (tokens.size() < 7)

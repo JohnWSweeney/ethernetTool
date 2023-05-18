@@ -30,6 +30,7 @@ void listener(int localPortNum)
 		}
 	}
 	udpListen.closeSocket();
+	std::cout << "Listen terminated on port " << localPortNum << ".\n";
 }
 
 void message(std::string destIPstr, int destPortNum, std::string msg)
@@ -75,9 +76,10 @@ void echo(int localPortNum)
 		}
 	}
 	udpEcho.closeSocket();
+	std::cout << "Echo terminated on port " << localPortNum << ".\n";
 }
 
-void counter(std::string destIPstr, int destPortNum, int start, int end, int delay, bool loop)
+void counter(std::string destIPstr, int destPortNum, int start, int end, unsigned int delay, bool loop)
 {
 	udpSocket udpCounter;
 	int localPortNum = 0; // Pick a port for me.
