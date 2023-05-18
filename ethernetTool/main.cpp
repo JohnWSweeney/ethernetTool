@@ -2,7 +2,7 @@
 
 int main()
 {
-	std::cout << "ethernetTool v0.0.0" << '\n';
+	std::cout << "ethernetTool v0.2.0" << '\n';
 	bool running = true;
 	std::vector<std::string> tokens;
 	while (running)

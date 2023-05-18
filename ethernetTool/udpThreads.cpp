@@ -6,6 +6,7 @@
 std::atomic<bool> listenStatus;
 std::atomic<bool> messageStatus;
 std::atomic<bool> echoStatus;
+std::atomic<bool> counterStatus;
 
 void startListenThread(std::vector<std::string>& tokens)
 {
@@ -73,5 +74,44 @@ void startEchoThread(std::vector<std::string>& tokens)
 	else
 	{
 		std::cout << "Invalid command. Try again." << '\n';
+	}
+}
+
+void startCounterThread(std::vector<std::string>& tokens)
+{
+	if (tokens[1] == "stop")
+	{
+		counterStatus = false;
+	}
+	else
+	{
+		try {
+			std::string destIPstr = tokens[1];
+			int portNum = std::stoi(tokens[2]);
+			int start = std::stoi(tokens[3]);
+			int end = std::stoi(tokens[4]);
+			int delay = std::stoi(tokens[5]);
+
+			bool loop;
+			if (tokens.size() < 7)
+			{
+				loop = false;
+			}
+			else if (tokens[6] == "loop")
+			{
+				loop = true;
+			}
+			else // invalid input detect
+			{
+				loop = false;
+			}
+
+			counterStatus = true;
+			std::thread counterThread(counter, destIPstr, portNum, start, end, delay, loop);
+			counterThread.detach();
+		}
+		catch (...) {
+			std::cout << "Error starting counter." << '\n';
+		}
 	}
 }

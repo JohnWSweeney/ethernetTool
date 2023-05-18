@@ -6,6 +6,7 @@
 extern std::atomic<bool> listenStatus;
 extern std::atomic<bool> messageStatus;
 extern std::atomic<bool> echoStatus;
+extern std::atomic<bool> counterStatus;
 
 void listener(int localPortNum)
 {
@@ -74,4 +75,48 @@ void echo(int localPortNum)
 		}
 	}
 	udpEcho.closeSocket();
+}
+
+void counter(std::string destIPstr, int destPortNum, int start, int end, int delay, bool loop)
+{
+	udpSocket udpCounter;
+	int localPortNum = 0; // Pick a port for me.
+	udpCounter.openSocket(localPortNum);
+	const char *destIP = destIPstr.c_str();
+
+	char buf[4] = {0};
+	int* iPtr = (int*)buf;
+	int len = sizeof(buf);
+
+	while (counterStatus)
+	{
+		if (end - start > 0){
+			for (int i = start; i <= end; i++){
+				if (counterStatus == false) { break; }
+				*iPtr = i;
+				udpCounter.tx(destIP, destPortNum, buf, len);
+				Sleep(delay);
+				if (loop == true){
+					if (i == end){
+						i = start;
+					}
+				}
+			}
+		}
+		else{
+			for (int i = start; i > end; i--){
+				if (counterStatus == false) { break; }
+				*iPtr = i;
+				udpCounter.tx(destIP, destPortNum, buf, len);
+				Sleep(delay);
+				if (loop == true){
+					if (i == end + 1){
+						i = start;
+					}
+				}
+			}
+		}
+		counterStatus = false;
+	}
+	udpCounter.closeSocket();
 }

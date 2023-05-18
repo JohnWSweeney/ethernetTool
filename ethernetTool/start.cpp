@@ -6,6 +6,7 @@
 extern std::atomic<bool> listenStatus;
 extern std::atomic<bool> messageStatus;
 extern std::atomic<bool> echoStatus;
+extern std::atomic<bool> counterStatus;
 
 void getInput(std::vector<std::string> &tokens)
 {
@@ -38,6 +39,11 @@ void selectThread(bool& running, std::vector<std::string>& tokens)
 	{
 		startEchoThread(tokens);
 	}
+	//
+	else if (tokens[0] == "counter")
+	{
+		startCounterThread(tokens);
+	}
 	// stop all active threads.
 	else if (tokens[0] == "stop")
 	{
@@ -46,6 +52,7 @@ void selectThread(bool& running, std::vector<std::string>& tokens)
 			listenStatus = false;
 			messageStatus = false;
 			echoStatus = false;
+			counterStatus = false;
 			std::cout << "All threads stopped." << '\n';
 		}
 		else
@@ -59,6 +66,7 @@ void selectThread(bool& running, std::vector<std::string>& tokens)
 		listenStatus = false;
 		messageStatus = false;
 		echoStatus = false;
+		counterStatus = false;
 		running = false;
 		Sleep(750);
 	}
