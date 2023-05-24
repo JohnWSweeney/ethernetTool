@@ -1,7 +1,5 @@
-#include "ethernetTool.h"
-#include <string>
-#include <thread>
-#include <atomic>
+#include "udpThreads.h"
+#include "udpFunctions.h"
 
 std::atomic<bool> listenStatus;
 std::atomic<bool> messageStatus;

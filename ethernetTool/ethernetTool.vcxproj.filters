@@ -32,10 +32,16 @@
     </ClCompile>
   </ItemGroup>
   <ItemGroup>
-    <ClInclude Include="ethernetTool.h">
+    <ClInclude Include="udp.h">
       <Filter>Header Files</Filter>
     </ClInclude>
-    <ClInclude Include="udp.h">
+    <ClInclude Include="start.h">
+      <Filter>Header Files</Filter>
+    </ClInclude>
+    <ClInclude Include="udpThreads.h">
+      <Filter>Header Files</Filter>
+    </ClInclude>
+    <ClInclude Include="udpFunctions.h">
       <Filter>Header Files</Filter>
     </ClInclude>
   </ItemGroup>

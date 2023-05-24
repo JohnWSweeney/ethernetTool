@@ -41,11 +41,11 @@ where *ipAddress* is the destination address, *portNumber* is the destination po
 
 For example, enter:
 
-> *message 192.168.1.6 345 0 1000 500*
+> *counter 192.168.1.6 345 0 1000 500*
 
 to stream a counter once from 0 to 1000 in 500 ms time intervals to 192.168.1.6:345. Similarly, 
 
-> *message 192.168.1.6 345 -1234 4321 2500 loop*
+> *counter 192.168.1.6 345 -1234 4321 2500 loop*
 
 streams a looping counter from -1234 to 4321 in 2.5 second time intervals.
 
@@ -62,6 +62,10 @@ To stop all active threads and exit the app, enter:
 - Command case-insensitivity.
 
 ## ChangeLog
+v1.0.1
+- Each .cpp now has its own header.
+- Fixed typo in counter instruction examples.
+
 v1.0.0
 - Added counter function.
 

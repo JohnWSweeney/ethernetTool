@@ -135,8 +135,10 @@
     <ClCompile Include="udpThreads.cpp" />
   </ItemGroup>
   <ItemGroup>
-    <ClInclude Include="ethernetTool.h" />
+    <ClInclude Include="start.h" />
     <ClInclude Include="udp.h" />
+    <ClInclude Include="udpFunctions.h" />
+    <ClInclude Include="udpThreads.h" />
   </ItemGroup>
   <ItemGroup>
     <None Include="..\README.md" />
