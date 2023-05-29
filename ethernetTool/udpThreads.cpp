@@ -1,10 +1,6 @@
 #include "udpThreads.h"
 #include "udpFunctions.h"
-
-std::atomic<bool> listenStatus;
-std::atomic<bool> messageStatus;
-std::atomic<bool> echoStatus;
-std::atomic<bool> counterStatus;
+#include "atomicBool.h"
 
 void startListenThread(std::vector<std::string>& tokens)
 {
@@ -17,7 +13,7 @@ void startListenThread(std::vector<std::string>& tokens)
 			listenThread.detach();
 		}
 		catch (...) {
-			std::cout << "Error starting listen." << '\n';
+			std::cout << "Error starting listen.\n";
 		}
 	}
 	else if (tokens[1] == "stop")
@@ -26,7 +22,7 @@ void startListenThread(std::vector<std::string>& tokens)
 	}
 	else
 	{
-		std::cout << "Invalid command. Try again." << '\n';
+		std::cout << "Invalid command. Try again.\n";
 	}
 }
 
@@ -45,7 +41,7 @@ void startMessageThread(std::vector<std::string>& tokens)
 		messageThread.detach();
 	}
 	catch (...) {
-		std::cout << "Error sending message." << '\n';
+		std::cout << "Error sending message.\n";
 	}
 }
 
@@ -61,7 +57,7 @@ void startEchoThread(std::vector<std::string>& tokens)
 		}
 		catch (...)
 		{
-			std::cout << "Error starting echo." << '\n';
+			std::cout << "Error starting echo.\n";
 		}
 	}
 	else if (tokens[1] == "stop")
@@ -71,7 +67,7 @@ void startEchoThread(std::vector<std::string>& tokens)
 	}
 	else
 	{
-		std::cout << "Invalid command. Try again." << '\n';
+		std::cout << "Invalid command. Try again.\n";
 	}
 }
 
@@ -109,7 +105,7 @@ void startCounterThread(std::vector<std::string>& tokens)
 			counterThread.detach();
 		}
 		catch (...) {
-			std::cout << "Error starting counter." << '\n';
+			std::cout << "Error starting counter.\n";
 		}
 	}
 }

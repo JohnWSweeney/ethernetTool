@@ -1,6 +1,5 @@
 #pragma once
 #include <iostream>
-#include <atomic>
 
 void listener(int localPortNum);
 void message(std::string destIPstr, int destPortNum, std::string msg);

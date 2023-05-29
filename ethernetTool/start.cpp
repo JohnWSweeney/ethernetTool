@@ -1,10 +1,6 @@
 #include "start.h"
 #include "udpThreads.h"
-
-extern std::atomic<bool> listenStatus;
-extern std::atomic<bool> messageStatus;
-extern std::atomic<bool> echoStatus;
-extern std::atomic<bool> counterStatus;
+#include "atomicBool.h"
 
 void getInput(std::vector<std::string> &tokens)
 {
@@ -20,7 +16,7 @@ void getInput(std::vector<std::string> &tokens)
 	} while (tokens.empty());
 }
 
-void selectThread(bool& running, std::vector<std::string>& tokens)
+void startMenu(bool& running, std::vector<std::string>& tokens)
 {
 	// start new thread running listen function.
 	if (tokens[0] == "listen")
@@ -51,11 +47,11 @@ void selectThread(bool& running, std::vector<std::string>& tokens)
 			messageStatus = false;
 			echoStatus = false;
 			counterStatus = false;
-			std::cout << "All threads stopped." << '\n';
+			std::cout << "All threads stopped.\n";
 		}
 		else
 		{
-			std::cout << "Invalid command. Try again." << '\n';
+			std::cout << "Invalid command. Try again.\n";
 		}
 	}
 	// Terminate active threads, program.
@@ -71,7 +67,7 @@ void selectThread(bool& running, std::vector<std::string>& tokens)
 	// Reject all other inputs.
 	else
 	{
-		std::cout << "Invalid command. Try again." << '\n';
+		std::cout << "Invalid command. Try again.\n";
 	}
 	tokens.clear();
 }

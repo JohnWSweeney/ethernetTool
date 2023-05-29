@@ -59,10 +59,10 @@ int udpSocket::rx(datagram& rxDatagram)
 	char rxbuf[1472] = { 0 }; //Payload buffer.
 	int rxbuflen = sizeof(rxbuf);//Payload buffer size in bytes.
 
-	int rxReady = socketReadStatus(udpSocketServer);//Check if socket RX ready.
+	int rxReady = socketReadStatus(udpSocketServer); //Check if socket RX ready.
 	if (rxReady > 0)
 	{
-		int rxbytes = recvfrom(udpSocketServer, rxbuf, rxbuflen, 0, (SOCKADDR *) & rxAddr, &rxAddrSize);
+		int rxbytes = recvfrom(udpSocketServer, rxbuf, rxbuflen, 0, (SOCKADDR *)&rxAddr, &rxAddrSize);
 		if (rxbytes > 0)
 		{
 			rxDatagram.sin_addr = rxAddr.sin_addr;
@@ -76,6 +76,10 @@ int udpSocket::rx(datagram& rxDatagram)
 			return 0;
 		}
 	}
+	else // Necessary to prevent looping on listen, echo.
+	{
+		return 0;
+	}		
 }
 
 int udpSocket::tx(const char* destIP, int destPortNum, const char *buf, int len)
@@ -86,13 +90,13 @@ int udpSocket::tx(const char* destIP, int destPortNum, const char *buf, int len)
 	destSock.sin_addr.s_addr = inet_addr(destIP);
 	destSock.sin_port = destPortNum;
 
-	int txReady = socketWriteStatus(udpSocketServer);//Check if socket TX ready.
+	int txReady = socketWriteStatus(udpSocketServer); //Check if socket TX ready.
 	if (txReady > 0)
 	{
 		result = sendto(udpSocketServer, buf, len, 0, (SOCKADDR *)& destSock, sizeof(destSock));
 		if (result == SOCKET_ERROR)
 		{
-			std::cout << "sendto failed with error: " << WSAGetLastError() << std::endl;
+			std::cout << "sendto failed with error: " << WSAGetLastError() << '\n';
 			return 1;
 		}
 		else
@@ -106,9 +110,9 @@ void udpSocket::closeSocket()
 {
 	//Close socket.
 	closesocket(udpSocketServer);
-	std::cout << "Server socket closed." << std::endl;
+	std::cout << "Server socket closed.\n";
 
 	//Terminate Winsock dll.
 	WSACleanup();
-	std::cout << "Clean up success.\n" << std::endl;
+	std::cout << "Clean up success.\n";
 }
