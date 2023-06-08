@@ -1,102 +1,140 @@
 #include "udp.h"
 
-int udpSocket::socketReadStatus(SOCKET udpSocketServer)
+int udp::socketReadStatus(SOCKET &udpSocket)
 {
 	FD_SET readfds;
 	FD_ZERO(&readfds);
-	FD_SET(udpSocketServer, &readfds);
-
-	timeval timeout; 
-	timeout.tv_sec = s;
-	timeout.tv_usec = us;
-
-	return select(0, &readfds, 0, 0, &timeout);//Check socket RX status.
-}
-
-int udpSocket::socketWriteStatus(SOCKET udpSocketServer)
-{
-	FD_SET writefds;
-	FD_ZERO(&writefds);
-	FD_SET(udpSocketServer, &writefds);
+	FD_SET(udpSocket, &readfds);
 
 	timeval timeout;
 	timeout.tv_sec = s;
 	timeout.tv_usec = us;
 
-	return select(0, 0, &writefds, 0, &timeout);//Check socket TX status.
-}
-
-void udpSocket::openSocket(int localPortNum)
-{
-	//Open Winsock dll.
-	WSADATA WinSockData;
-	WSAStartup(MAKEWORD(2, 2), &WinSockData);
-	std::cout << "WSAStarup success" << std::endl;
-
-	//Create UDP socket.
-	udpSocketServer = socket(AF_INET, SOCK_DGRAM, IPPROTO_UDP);
-	std::cout << "Server socket opened." << std::endl;
-
-	//Local socket parameters.
-	struct sockaddr_in localSock;//new socket struct
-	localSock.sin_family = AF_INET;
-	localSock.sin_addr.s_addr = INADDR_ANY;
-	localSock.sin_port = htons(localPortNum);
-
-	//Assign address/port to new socket.
-	result = bind(udpSocketServer, (SOCKADDR *)&localSock, sizeof(localSock)); 
+	result = select(0, &readfds, 0, 0, &timeout); // Check socket RX status.
 	if (result == SOCKET_ERROR)
 	{
-		std::cout << "Bind failed with error: " << WSAGetLastError() << std::endl;
+		std::cout << "select failed with error: " << WSAGetLastError() << '\n';
+		return 0;
 	}
-} 
-
-int udpSocket::rx(datagram& rxDatagram)
-{
-	struct sockaddr_in rxAddr;//Dummy socket struct to hold RX packet fields.
-	int rxAddrSize = sizeof(rxAddr);
-
-	char rxbuf[1472] = { 0 }; //Payload buffer.
-	int rxbuflen = sizeof(rxbuf);//Payload buffer size in bytes.
-
-	int rxReady = socketReadStatus(udpSocketServer); //Check if socket RX ready.
-	if (rxReady > 0)
+	else
 	{
-		int rxbytes = recvfrom(udpSocketServer, rxbuf, rxbuflen, 0, (SOCKADDR *)&rxAddr, &rxAddrSize);
-		if (rxbytes > 0)
-		{
-			rxDatagram.sin_addr = rxAddr.sin_addr;
-			rxDatagram.sin_port = rxAddr.sin_port;
-			rxDatagram.payloadLen = rxbytes;
-			strcpy_s(rxDatagram.payload, rxbuf);
-			return 1;
-		}
-		else
-		{
-			return 0;
-		}
+		return result;
 	}
-	else // Necessary to prevent looping on listen, echo.
+}
+
+int udp::socketWriteStatus(SOCKET &udpSocket)
+{
+	FD_SET writefds;
+	FD_ZERO(&writefds);
+	FD_SET(udpSocket, &writefds);
+
+	timeval timeout;
+	timeout.tv_sec = s;
+	timeout.tv_usec = us;
+
+	result = select(0, 0, &writefds, 0, &timeout); // Check socket TX status.
+	if (result == SOCKET_ERROR)
+	{
+		std::cout << "select failed with error: " << WSAGetLastError() << '\n';
+		return 0;
+	}
+	else
+	{
+		return result;
+	}
+}
+
+int udp::openSocket(int localPortNum)
+{
+	// Open Winsock dll.
+	WORD wVersionRequested = MAKEWORD(2, 2);
+	WSADATA WinSockData;
+	result = WSAStartup(wVersionRequested, &WinSockData);
+	if (result != 0)
+	{
+		std::cout << "WSAStartup failed with error: " << result << '\n';
+		return 1;
+	}
+
+	// Update socket.
+	udpSocket = socket(AF_INET, SOCK_DGRAM, IPPROTO_UDP);
+	if (udpSocket == INVALID_SOCKET)
+	{
+		std::cout << "socket failed with error: " << WSAGetLastError() << '\n';
+		closeSocket();
+		return 1;
+	}
+
+	// Local socket parameters.
+	struct sockaddr_in local;
+	local.sin_family = AF_INET;
+	local.sin_addr.s_addr = INADDR_ANY;
+	local.sin_port = htons(localPortNum);
+
+	// Assign address/port to socket.
+	result = bind(udpSocket, (SOCKADDR *)&local, sizeof(local));
+	if (result == SOCKET_ERROR)
+	{
+		std::cout << "bind failed with error: " << WSAGetLastError() << std::endl;
+		closeSocket();
+		return 1;
+	}
+	else
 	{
 		return 0;
-	}		
+	}
 }
 
-int udpSocket::tx(const char* destIP, int destPortNum, const char *buf, int len)
+int udp::rx(datagram &rxDatagram)
 {
-	//Destination socket parameters.
-	struct sockaddr_in destSock;
-	destSock.sin_family = AF_INET;
-	destSock.sin_addr.s_addr = inet_addr(destIP);
-	destSock.sin_port = destPortNum;
+	struct sockaddr_in src; // Dummy socket struct to hold RX packet fields.
+	int srcSize = sizeof(src);
 
-	int txReady = socketWriteStatus(udpSocketServer); //Check if socket TX ready.
+	char rxbuf[65527] = { 0 }; // Payload buffer.
+	int rxbuflen = sizeof(rxbuf);
+
+	int rxReady = socketReadStatus(udpSocket); // Check socket RX status.
+	if (rxReady > 0)
+	{
+		int rxBytes = recvfrom(udpSocket, rxbuf, rxbuflen, 0, (SOCKADDR *)&src, &srcSize);
+		if (rxBytes == SOCKET_ERROR)
+		{
+			std::cout << "recvfrom failed with error: " << WSAGetLastError() << '\n';
+		}
+		if (rxBytes > 0)
+		{
+			rxDatagram.sin_addr = src.sin_addr;
+			rxDatagram.sin_port = src.sin_port;
+			rxDatagram.payloadLen = rxBytes;
+			strcpy_s(rxDatagram.payload, rxbuf);
+			return rxBytes;
+		}
+		else
+		{
+			return 0;
+		}
+	}
+	else // Necessary to prevent looping.
+	{
+		return 0;
+	}
+}
+
+int udp::tx(const char* destIP, int destPortNum, const char *buf, int len)
+{
+	// Destination socket parameters.
+	struct sockaddr_in dest;
+	dest.sin_family = AF_INET;
+	dest.sin_addr.s_addr = inet_addr(destIP);
+	dest.sin_port = destPortNum;
+
+	int txReady = socketWriteStatus(udpSocket);// Check socket TX status.
 	if (txReady > 0)
 	{
-		result = sendto(udpSocketServer, buf, len, 0, (SOCKADDR *)& destSock, sizeof(destSock));
+		result = sendto(udpSocket, buf, len, 0, (SOCKADDR *)&dest, sizeof(dest));
 		if (result == SOCKET_ERROR)
 		{
-			std::cout << "sendto failed with error: " << WSAGetLastError() << '\n';
+			std::cout << "sendto failed with error: " << WSAGetLastError() << std::endl;
 			return 1;
 		}
 		else
@@ -106,13 +144,25 @@ int udpSocket::tx(const char* destIP, int destPortNum, const char *buf, int len)
 	}
 }
 
-void udpSocket::closeSocket()
+int udp::closeSocket()
 {
-	//Close socket.
-	closesocket(udpSocketServer);
-	std::cout << "Server socket closed.\n";
+	// Close socket and Winsock dll.
+	result = closesocket(udpSocket);
+	if (result != 0)
+	{
+		std::cout << "closesocket failed with error: " << WSAGetLastError() << '\n';
+		WSACleanup();
+		return 1;
+	}
 
-	//Terminate Winsock dll.
-	WSACleanup();
-	std::cout << "Clean up success.\n";
+	result = WSACleanup();
+	if (result != 0)
+	{
+		std::cout << "WSACleanup failed with error: " << WSAGetLastError() << '\n';
+		return 1;
+	}
+	else
+	{
+		return 0;
+	}
 }

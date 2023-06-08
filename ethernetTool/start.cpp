@@ -51,7 +51,7 @@ void startMenu(bool& running, std::vector<std::string>& tokens)
 		}
 		else
 		{
-			std::cout << "Invalid command. Try again.\n";
+			std::cout << "Invalid stop command.\n";
 		}
 	}
 	// Terminate active threads, program.
@@ -67,7 +67,7 @@ void startMenu(bool& running, std::vector<std::string>& tokens)
 	// Reject all other inputs.
 	else
 	{
-		std::cout << "Invalid command. Try again.\n";
+		std::cout << "Invalid function command.\n";
 	}
 	tokens.clear();
 }

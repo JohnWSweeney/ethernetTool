@@ -4,24 +4,32 @@
 
 void listener(int localPortNum)
 {
-	udpSocket udpListen;
-	udpListen.openSocket(localPortNum);
+	udp udpListen;
+	int result = udpListen.openSocket(localPortNum);
+	if (result != 0)
+	{
+		std::cout << "openSocket failed.\n";
+		listenStatus = false;
+	}
+	else
+	{
+		std::cout << "Listening on port " << localPortNum << "...\n\n";
+	}
 
-	std::cout << "Listening on port " << localPortNum << "...\n\n";
 	datagram rxDatagram;
-	int rxPackets = 0;
+	int packetsReceived = 0;
 	while (listenStatus)
 	{
 		int result = udpListen.rx(rxDatagram);
 		if (result > 0)
 		{
-			++rxPackets;
-			std::cout << "Received: \n";
+			std::cout << "Received on port: " << localPortNum << '\n';
 			std::cout << "Source address: " << inet_ntoa(rxDatagram.sin_addr) << '\n';
 			std::cout << "Source port: " << rxDatagram.sin_port << '\n';
 			std::cout << "Payload size: " << rxDatagram.payloadLen << " bytes\n";
 			std::cout << "Payload: " << rxDatagram.payload << '\n';
-			std::cout << "Packets received since runtime: " << rxPackets << "\n\n";
+			++packetsReceived;
+			std::cout << "Packets received since runtime: " << packetsReceived << "\n\n";
 		}
 	}
 	udpListen.closeSocket();
@@ -30,9 +38,14 @@ void listener(int localPortNum)
 
 void message(std::string destIPstr, int destPortNum, std::string msg)
 {
-	udpSocket udpMessage;
+	udp udpMessage;
 	int localPortNum = 0; // Pick a port for me.
-	udpMessage.openSocket(localPortNum);
+	int result = udpMessage.openSocket(localPortNum);
+	if (result != 0)
+	{
+		std::cout << "openSocket failed.\n";
+		messageStatus = false;
+	}
 
 	const char *destIP = destIPstr.c_str();
 	const char *txbufptr = msg.data();
@@ -42,7 +55,7 @@ void message(std::string destIPstr, int destPortNum, std::string msg)
 		int result = udpMessage.tx(destIP, destPortNum, txbufptr, len);
 		if (result == 0)
 		{
-			std::cout << "Message: \"" << msg << "\" sent to: " << destIP << ":" << destPortNum << "\n";
+			std::cout << "Message: \"" << msg << "\" sent to: " << destIP << " port " << destPortNum << "\n";
 			
 		}
 		messageStatus = false;
@@ -52,22 +65,30 @@ void message(std::string destIPstr, int destPortNum, std::string msg)
 
 void echo(int localPortNum)
 {
-	udpSocket udpEcho;
-	udpEcho.openSocket(localPortNum);
+	udp udpEcho;
+	int result = udpEcho.openSocket(localPortNum);
+	if (result != 0)
+	{
+		std::cout << "openSocket failed.\n";
+		echoStatus = false;
+	}
+	else
+	{
+		std::cout << "Echoing on port " << localPortNum << "...\n\n";
+	}
 
-	std::cout << "Echoing on port " << localPortNum << "...\n\n";
 	datagram rxDatagram;
 	int packetsEchoed = 0;
 	while (echoStatus)
 	{
-		int result = udpEcho.rx(rxDatagram);
+		result = udpEcho.rx(rxDatagram);
 		if (result > 0)
 		{
-			std::cout << "Echoed: \n";
+			std::cout << "Echoed on port: " << localPortNum << '\n';
 			std::cout << "Source address: " << inet_ntoa(rxDatagram.sin_addr) << '\n';
 			std::cout << "Source port: " << rxDatagram.sin_port << '\n';
-			std::cout << "Payload size: " << rxDatagram.payloadLen << " bytes\n";
-			std::cout << "Payload: " << rxDatagram.payload << "\n";
+			std::cout << "Payload size: " << rxDatagram.payloadLen << '\n';
+			std::cout << "Payload: " << rxDatagram.payload << '\n';
 			udpEcho.tx(inet_ntoa(rxDatagram.sin_addr), rxDatagram.sin_port, rxDatagram.payload, rxDatagram.payloadLen);
 			++packetsEchoed;
 			std::cout << "Packets echoed since runtime: " << packetsEchoed << "\n\n";
@@ -79,18 +100,24 @@ void echo(int localPortNum)
 
 void counter(std::string destIPstr, int destPortNum, int start, int end, unsigned int delay, bool loop)
 {
-	udpSocket udpCounter;
+	udp udpCounter;
 	int localPortNum = 0; // Pick a port for me.
-	udpCounter.openSocket(localPortNum);
+	int result = udpCounter.openSocket(localPortNum);
+	if (result != 0)
+	{
+		std::cout << "openSocket failed.\n";
+		counterStatus = false;
+	}
+	
 	const char *destIP = destIPstr.c_str();
-
 	char buf[4] = {0};
 	int* iPtr = (int*)buf;
 	int len = sizeof(buf);
 
 	while (counterStatus)
 	{
-		if (end - start > 0){
+		if (end - start > 0)
+		{
 			for (int i = start; i <= end; i++)
 			{
 				if (counterStatus == false) { break; }

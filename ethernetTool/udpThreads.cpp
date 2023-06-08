@@ -12,8 +12,13 @@ void startListenThread(std::vector<std::string>& tokens)
 			std::thread listenThread(listener, portNum);
 			listenThread.detach();
 		}
-		catch (...) {
-			std::cout << "Error starting listen.\n";
+		catch (std::invalid_argument)
+		{
+			std::cout << "Invalid port number.\n";
+		}
+		catch (std::out_of_range)
+		{
+			std::cout << "Port number is out of range.\n";
 		}
 	}
 	else if (tokens[1] == "stop")
@@ -22,7 +27,7 @@ void startListenThread(std::vector<std::string>& tokens)
 	}
 	else
 	{
-		std::cout << "Invalid command. Try again.\n";
+		std::cout << "Invalid start/stop command.\n";
 	}
 }
 
@@ -40,8 +45,13 @@ void startMessageThread(std::vector<std::string>& tokens)
 		std::thread messageThread(message, destIPstr, portNum, msg);
 		messageThread.detach();
 	}
-	catch (...) {
-		std::cout << "Error sending message.\n";
+	catch (std::invalid_argument)
+	{
+		std::cout << "Invalid port number.\n";
+	}
+	catch (std::out_of_range)
+	{
+		std::cout << "Port number is out of range.\n";
 	}
 }
 
@@ -55,9 +65,13 @@ void startEchoThread(std::vector<std::string>& tokens)
 			std::thread echoThread(echo, portNum);
 			echoThread.detach();
 		}
-		catch (...)
+		catch (std::invalid_argument)
 		{
-			std::cout << "Error starting echo.\n";
+			std::cout << "Invalid port number.\n";
+		}
+		catch (std::out_of_range)
+		{
+			std::cout << "Port number is out of range.\n";
 		}
 	}
 	else if (tokens[1] == "stop")
@@ -67,7 +81,7 @@ void startEchoThread(std::vector<std::string>& tokens)
 	}
 	else
 	{
-		std::cout << "Invalid command. Try again.\n";
+		std::cout << "Invalid start/stop command.\n";
 	}
 }
 
@@ -98,14 +112,20 @@ void startCounterThread(std::vector<std::string>& tokens)
 			else // invalid input detect
 			{
 				loop = false;
+				std::cout << "Invalid loop command. Loop disabled.\n";
 			}
 
 			counterStatus = true;
 			std::thread counterThread(counter, destIPstr, portNum, start, end, delay, loop);
 			counterThread.detach();
 		}
-		catch (...) {
-			std::cout << "Error starting counter.\n";
+		catch (std::invalid_argument)
+		{
+			std::cout << "Invalid port number and/or start, end, and/or delay integer(s).\n";
+		}
+		catch (std::out_of_range)
+		{
+			std::cout << "Port number and/or start, end, and/or delay integer(s) is/are out of range.\n";
 		}
 	}
 }

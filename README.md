@@ -59,9 +59,16 @@ To stop all active threads and exit the app, enter:
 - Command case-insensitivity.
 
 ## Download ##
-[ethernetTool v1.0.2](https://github.com/JohnWSweeney/ethernetTool/releases/download/v1.0.2/ethernetTool_v1_0_2.exe) [38 kB]
+[ethernetTool v1.0.3](https://github.com/JohnWSweeney/ethernetTool/releases/download/v1.0.3/ethernetTool_v1_0_3.exe) [39 kB]
 
 ## ChangeLog <br/>
+v1.0.3
+- Updated error handling in:
+	- udp class.
+	- listen, message, echo, and counter functions in udpFunctions.cpp.
+	- listen, message, echo, and counter thread functions in udpThreads.cpp.
+- Updated datagram payload, recvfrom buffer to maximum possible size of 65,527 bytes.
+
 v1.0.2
 - Compliled for "release" instead of "debug" (oops). 
 - Added (rxReady < 0) condition to socketReadStatus function in udp.cpp to prevent looping on listen, echo funcitons on release build.
