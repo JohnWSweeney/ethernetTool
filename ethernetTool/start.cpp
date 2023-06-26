@@ -1,5 +1,7 @@
 #include "start.h"
+#include "tcpThreads.h"
 #include "udpThreads.h"
+
 #include "atomicBool.h"
 
 void getInput(std::vector<std::string> &tokens)
@@ -18,25 +20,30 @@ void getInput(std::vector<std::string> &tokens)
 
 void startMenu(bool& running, std::vector<std::string>& tokens)
 {
-	// start new thread running listen function.
+	// start new thread running UDP listen function.
 	if (tokens[0] == "listen")
 	{
 		startListenThread(tokens);
 	}
-	// Send a single packet.
+	// Send a single UDP packet.
 	else if (tokens[0] == "message")
 	{
 		startMessageThread(tokens);
 	}
-	// start new thread running echo function.
+	// start new thread running UDP echo function.
 	else if (tokens[0] == "echo")
 	{
 		startEchoThread(tokens);
 	}
-	//
+	// start new thread running UDP counter function.
 	else if (tokens[0] == "counter")
 	{
 		startCounterThread(tokens);
+	}
+	// start a new servwr thread.
+	else if (tokens[0] == "server")
+	{
+		startServerThread(tokens);
 	}
 	// stop all active threads.
 	else if (tokens[0] == "stop")
@@ -47,6 +54,7 @@ void startMenu(bool& running, std::vector<std::string>& tokens)
 			messageStatus = false;
 			echoStatus = false;
 			counterStatus = false;
+			serverStatus = false;
 			std::cout << "All threads stopped.\n";
 		}
 		else
@@ -61,6 +69,7 @@ void startMenu(bool& running, std::vector<std::string>& tokens)
 		messageStatus = false;
 		echoStatus = false;
 		counterStatus = false;
+		serverStatus = false;
 		running = false;
 		Sleep(750);
 	}

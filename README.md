@@ -1,19 +1,23 @@
 # ethernetTool
 
-A Windows console TCP/IP diagnostic app. Functions include listen, message, echo, and counter stream. The app is built on the Winsock API and supports multithreading. The app currently only supports UDP (TCP in progress).
+A Windows console TCP/IP diagnostic app. UDP functions include listen, message, echo, and counter stream. TCP functions include listen and echo servers. The app is built on the Winsock API and supports multithreading.
 
 ## Functions
-Enter the command keywords separated by a space. Commands are currently case-sensitive and must be lower-case.
+The app opens a console window on startup. Enter the *command* keywords separated by a space. Commands are case-sensitive. Function names are entered first, followed by any parameters. For example:
+>*functionName parameter1 parameter2 ...* 
+
+## UDP Functions
 
 ### Listen
-To start or stop a thread listening on a local port, enter:
-> *listen start localPortNumber* <br/>
+To start or stop a UDP listening thread, enter:
+> *listen start localPortNumber*
+
 > *listen stop*
 
 where *localPortNumber* is the port you want to listen on. An incoming packet's source address/port, payload size (bytes), and payload are printed to the console.
 
 ### Message
-To send a message to a specific address/port, enter:
+To send a UDP message to a specific address/port, enter:
 > *message destIPaddress destPortNumber yourMessage*
 
 where *destIPaddress* is the destination address in IPv4 dot-decimal notation (x.x.x.x), *destPortNumber* is the destination port number, and *yourMessage* is your message. For example, enter:
@@ -23,15 +27,17 @@ where *destIPaddress* is the destination address in IPv4 dot-decimal notation (x
 to send "Yeah buddy 123#$%?" to 192.168.1.6 port 345.
 
 ### Echo
-Similar to the listen function, start or stop an echo thread using:
-> *echo start localPortNumber* <br/>
+Similar to the listen function, start or stop a UDP echo thread using:
+> *echo start localPortNumber*
+
 > *echo stop*
 
 Incoming packet data is displayed in the console. The payload is echoed back to to the source's address/port.
 
 ### Counter
-For troubleshooting embedded systems, its often helpful to stream a counter to a system under test to, say, print to LEDs. To start or stop a counter thread, enter:
-> *counter destIPaddress destPortNumber startInteger endInteger delay loop* <br/>
+For troubleshooting embedded systems, its often helpful to stream a counter to a system under test to, say, print to LEDs. To start or stop a UDP counter thread, enter:
+> *counter destIPaddress destPortNumber startInteger endInteger delay loop*
+
 > *counter stop*
 
 where *destIPaddress* is the destination address, *destPortNumber* is the destination port, *startInteger* is the counter's starting integer, *endInteger* is the counter's ending integer, *delay* is time in milliseconds between counter increments, and entering "loop" for *loop* triggers the counter to repeat continuously. *startInteger* and *endInteger* are 4-byte integers with range from -2147483648 to 2147483647. *delay* is an unsigned 4-byte integer ranging from 0 to 4294967295. Omit the *loop* command to stream the counter once.
@@ -46,6 +52,18 @@ to stream a counter once from 0 to 1000 in 500 ms time intervals to 192.168.1.6 
 
 streams a looping counter from -1234 to 4321 in 2.5 second time intervals.
 
+## TCP Functions
+TCP functions first start a thread running an instance of the server class, which spawns a second thread running a session for either the listen or echo functions. TCP threads cannot currently be stopped individually, only as a group, by entering:
+> *server stop*
+
+### Listen Server
+To start or stop a server thread running the listen function, enter:
+> *server listen localPortNumber*
+
+### Echo Server
+To start or stop a server thread running the echo function, enter:
+> *server echo localPortNumber*
+
 ### App Control
 To stop all active threads, enter:
 > *stop all*
@@ -54,14 +72,18 @@ To stop all active threads and exit the app, enter:
 > *exit*
 
 ## Future Updates
-- TCP support.
+- TCP client support.
 - GUI version.
 - Command case-insensitivity.
 
-## Download ##
-[ethernetTool v1.0.3](https://github.com/JohnWSweeney/ethernetTool/releases/download/v1.0.3/ethernetTool_v1_0_3.exe) [39 kB]
+## Download
+[ethernetTool v1.1.0](https://github.com/JohnWSweeney/ethernetTool/releases/download/v1.1.0/ethernetTool_v1_1_0.exe) [46 kB]
 
-## ChangeLog <br/>
+## ChangeLog
+v1.1.0
+- Added TCP, server, session clases.
+	- Session class supports listen and echo functions.
+
 v1.0.3
 - Updated error handling in:
 	- udp class.

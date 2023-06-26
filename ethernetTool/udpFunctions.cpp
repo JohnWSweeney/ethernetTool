@@ -55,7 +55,7 @@ void message(std::string destIPstr, int destPortNum, std::string msg)
 		int result = udpMessage.tx(destIP, destPortNum, txbufptr, len);
 		if (result == 0)
 		{
-			std::cout << "Message: \"" << msg << "\" sent to: " << destIP << " port " << destPortNum << "\n";
+			std::cout << "Message: \"" << msg << "\" sent to: " << destIP << " port " << destPortNum << "\n\n";
 			
 		}
 		messageStatus = false;
