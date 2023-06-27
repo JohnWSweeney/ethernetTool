@@ -81,11 +81,11 @@ To stop all active threads and exit the app, enter:
 - Command case-insensitivity.
 
 ## Download
-[ethernetTool v1.2.0](https://github.com/JohnWSweeney/ethernetTool/releases/download/v1.2.0/ethernetTool_v1_2_0.exe) [46 kB]
+[ethernetTool v1.2.0](https://github.com/JohnWSweeney/ethernetTool/releases/download/v1.2.0/ethernetTool_v1_2_0.exe) [51 kB]
 
 ## ChangeLog
 v1.2.0
-- Added client class with message funcion.
+- Added client class with message function.
 - Updated tcp class.
 
 v1.1.0
