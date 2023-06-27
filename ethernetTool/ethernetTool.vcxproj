@@ -129,9 +129,11 @@
   </ItemDefinitionGroup>
   <ItemGroup>
     <ClCompile Include="atomicBool.cpp" />
+    <ClCompile Include="client.cpp" />
     <ClCompile Include="main.cpp" />
     <ClCompile Include="server.cpp" />
     <ClCompile Include="session.cpp" />
+    <ClCompile Include="sortFunctions.cpp" />
     <ClCompile Include="start.cpp" />
     <ClCompile Include="tcp.cpp" />
     <ClCompile Include="tcpThreads.cpp" />
@@ -141,10 +143,13 @@
   </ItemGroup>
   <ItemGroup>
     <ClInclude Include="atomicBool.h" />
+    <ClInclude Include="client.h" />
     <ClInclude Include="server.h" />
     <ClInclude Include="session.h" />
+    <ClInclude Include="sortFunctions.h" />
     <ClInclude Include="start.h" />
     <ClInclude Include="tcp.h" />
+    <ClInclude Include="tcpStructs.h" />
     <ClInclude Include="tcpThreads.h" />
     <ClInclude Include="udp.h" />
     <ClInclude Include="udpFunctions.h" />

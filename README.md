@@ -1,6 +1,6 @@
 # ethernetTool
 
-A Windows console TCP/IP diagnostic app. UDP functions include listen, message, echo, and counter stream. TCP functions include listen and echo servers. The app is built on the Winsock API and supports multithreading.
+A Windows console TCP/IP diagnostic app. UDP functions include listen, message, echo, and counter stream. TCP functions include listen and echo servers and client message. The app is built on the Winsock API and supports multithreading.
 
 ## Functions
 The app opens a console window on startup. Enter the *command* keywords separated by a space. Commands are case-sensitive. Function names are entered first, followed by any parameters. For example:
@@ -64,6 +64,10 @@ To start or stop a server thread running the listen function, enter:
 To start or stop a server thread running the echo function, enter:
 > *server echo localPortNumber*
 
+### Client Message
+To start a client thread to send a message to a server, enter:
+> *client message serverIP serverPort yourMessage*
+
 ### App Control
 To stop all active threads, enter:
 > *stop all*
@@ -72,16 +76,20 @@ To stop all active threads and exit the app, enter:
 > *exit*
 
 ## Future Updates
-- TCP client support.
+- More TCP client functions.
 - GUI version.
 - Command case-insensitivity.
 
 ## Download
-[ethernetTool v1.1.0](https://github.com/JohnWSweeney/ethernetTool/releases/download/v1.1.0/ethernetTool_v1_1_0.exe) [46 kB]
+[ethernetTool v1.2.0](https://github.com/JohnWSweeney/ethernetTool/releases/download/v1.2.0/ethernetTool_v1_2_0.exe) [46 kB]
 
 ## ChangeLog
+v1.2.0
+- Added client class with message funcion.
+- Updated tcp class.
+
 v1.1.0
-- Added TCP, server, session clases.
+- Added TCP, server, session classes.
 	- Session class supports listen and echo functions.
 
 v1.0.3

@@ -13,7 +13,7 @@ int tcp::socketReadStatus(SOCKET &socket)
 	return select(0, &readfds, 0, 0, &timeout); //Check socket RX status.
 }
 
-int tcp::openSocket(int localPortNum, sockStruct &sockStruct)
+int tcp::openServerSocket(int localPortNum, SOCKET &listenSocket)
 {
 	// Start Winsock dll.
 	WORD wVersionRequested;
@@ -27,7 +27,8 @@ int tcp::openSocket(int localPortNum, sockStruct &sockStruct)
 	}
 
 	// Get local host info.
-	struct addrinfo hints;			 // what is this?
+	addrinfo *host = NULL;
+	struct addrinfo hints;
 	ZeroMemory(&hints, sizeof(hints));
 	hints.ai_family = AF_INET;
 	hints.ai_socktype = SOCK_STREAM;
@@ -37,7 +38,7 @@ int tcp::openSocket(int localPortNum, sockStruct &sockStruct)
 	std::ostringstream oss;
 	oss << localPortNum;
 
-	result = getaddrinfo(NULL, oss.str().c_str(), &hints, &sockStruct.host);
+	result = getaddrinfo(NULL, oss.str().c_str(), &hints, &host);
 	if (result != 0)
 	{
 		std::cout << "getaddrinfo failed with error: " << result << '\n';
@@ -46,39 +47,32 @@ int tcp::openSocket(int localPortNum, sockStruct &sockStruct)
 	}
 
 	// Initialize socket to listen for client connections.
-	sockStruct.listenSocket = socket(sockStruct.host->ai_family, sockStruct.host->ai_socktype, sockStruct.host->ai_protocol);
-	if (sockStruct.listenSocket == INVALID_SOCKET)
+	listenSocket = socket(host->ai_family, host->ai_socktype, host->ai_protocol);
+	if (listenSocket == INVALID_SOCKET)
 	{
 		std::cout << "Socket failed with error: " << WSAGetLastError() << '\n';
-		freeaddrinfo(sockStruct.host);
+		freeaddrinfo(host);
 		WSACleanup();
 		return 1;
 	}
-	else
-	{
-		return 0;
-	}
-}
 
-int tcp::bindListen(sockStruct &sockStruct)
-{
 	// Bind the listening socket to the host.
-	int result = bind(sockStruct.listenSocket, sockStruct.host->ai_addr, (int)sockStruct.host->ai_addrlen);
+	result = bind(listenSocket, host->ai_addr, (int)host->ai_addrlen);
 	if (result == SOCKET_ERROR)
 	{
 		std::cout << "Bind failed with error: " << WSAGetLastError() << '\n';
-		closeSocket(sockStruct.listenSocket);
+		closeSocket(listenSocket);
 		return 1;
 	}
 
-	freeaddrinfo(sockStruct.host);
+	freeaddrinfo(host);
 
 	// Set socket to listen for a client connection.
-	result = listen(sockStruct.listenSocket, SOMAXCONN);
+	result = listen(listenSocket, SOMAXCONN);
 	if (result == SOCKET_ERROR)
 	{
 		std::cout << "listen failed with error: " << WSAGetLastError() << '\n';
-		closeSocket(sockStruct.listenSocket);
+		closeSocket(listenSocket);
 		return 1;
 	}
 	else
@@ -87,13 +81,56 @@ int tcp::bindListen(sockStruct &sockStruct)
 	}
 }
 
-int tcp::acceptConnection(sockStruct &sockStruct)
+int tcp::openClientSocket(SOCKET &clientSocket, std::string serverIP, int serverPort)
 {
-	sockStruct.acceptSocket = accept(sockStruct.listenSocket, NULL, NULL);
-	if (sockStruct.acceptSocket == INVALID_SOCKET)
+	// Start Winsock dll.
+	WORD wVersionRequested;
+	WSADATA wsaData;
+	wVersionRequested = MAKEWORD(2, 2);
+	int result = WSAStartup(wVersionRequested, &wsaData);
+	if (result != 0)
+	{
+		std::cout << "WSAStartup failed with error: " << result << '\n';
+		return 1;
+	}
+
+	// Initialize socket.
+	clientSocket = socket(AF_INET, SOCK_STREAM, IPPROTO_TCP);
+	if (clientSocket == INVALID_SOCKET)
+	{
+		std::cout << "Client socket failed with error: " << WSAGetLastError() << '\n';
+		WSACleanup();
+		return 1;
+	}
+
+	// Server info.
+	sockaddr_in serverInfo;
+	serverInfo.sin_family = AF_INET;
+	serverInfo.sin_addr.s_addr = inet_addr(serverIP.c_str());
+	serverInfo.sin_port = htons(serverPort);
+
+	// Connect to server.
+	result = connect(clientSocket, (SOCKADDR *)&serverInfo, sizeof(serverInfo));
+	if (result == SOCKET_ERROR)
+	{
+		std::cout << "Connect to server failed with error: " << WSAGetLastError() << '\n';
+		closeSocket(clientSocket);
+		return 1;
+	}
+	else
+	{
+		std::cout << "Connected to server.\n";
+		return 0;
+	}
+}
+
+int tcp::acceptConnection(SOCKET &listenSocket, SOCKET &acceptSocket)
+{
+	acceptSocket = accept(listenSocket, NULL, NULL);
+	if (acceptSocket == INVALID_SOCKET)
 	{
 		std::cout << "accept failed with error: " << WSAGetLastError() << '\n';
-		closeSocket(sockStruct.acceptSocket);
+		closeSocket(acceptSocket);
 		return 1;
 	}
 	else
@@ -104,17 +141,12 @@ int tcp::acceptConnection(sockStruct &sockStruct)
 	}
 }
 
-int tcp::makeConnection()
+int tcp::rx(SOCKET &socket, char *buffer, int bufferLen)
 {
-
-}
-
-int tcp::rx(SOCKET &clientSocket, char *buffer, int bufferLen)
-{
-	int ready = socketReadStatus(clientSocket);
+	int ready = socketReadStatus(socket);
 	if (ready > 0)
 	{
-		int result = recv(clientSocket, buffer, bufferLen, 0);
+		int result = recv(socket, buffer, bufferLen, 0);
 		if (result > 0)
 		{
 			return result;
@@ -127,23 +159,23 @@ int tcp::rx(SOCKET &clientSocket, char *buffer, int bufferLen)
 		else
 		{
 			std::cout << "recv failed with error: " << WSAGetLastError() << '\n';
-			closeSocket(clientSocket);
-			return 1;
+			closeSocket(socket);
+			return -1;
 		}
 	}
 	else
 	{
-		return 1;
+		return -1;
 	}
 }
 
-int tcp::tx(SOCKET &clientSocket, char *buffer, int bufferLen)
+int tcp::tx(SOCKET &socket, const char *buffer, int bufferLen)
 {
-	int result = send(clientSocket, buffer, bufferLen, 0);
+	int result = send(socket, buffer, bufferLen, 0);
 	if (result == SOCKET_ERROR)
 	{
 		std::cout << "send failed with error: " << WSAGetLastError() << '\n';
-		closesocket(clientSocket);
+		closesocket(socket);
 		WSACleanup();
 		return 1;
 	}

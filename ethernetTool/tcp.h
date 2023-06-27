@@ -1,5 +1,6 @@
 #pragma once
 #define WIN32_LEAN_AND_MEAN
+#define _WINSOCK_DEPRECATED_NO_WARNINGS
 #include <iostream>
 #include <sstream>
 #include <WinSock2.h>
@@ -13,13 +14,6 @@ struct msg
 	int msgLen;
 };
 
-struct sockStruct
-{
-	SOCKET listenSocket = INVALID_SOCKET;
-	SOCKET acceptSocket = INVALID_SOCKET;
-	addrinfo *host = NULL;
-};
-
 class tcp
 {
 private:
@@ -27,12 +21,11 @@ private:
 	long us = 1;
 public:
 	int socketReadStatus(SOCKET &socket);
-	int openSocket(int localPortNum, sockStruct &sockStruct);
-	int bindListen(sockStruct &sockStruct);
-	int acceptConnection(sockStruct &sockStruct);
-	int makeConnection();
-	int rx(SOCKET &clientSocket, char *buffer, int bufferLen);
-	int tx(SOCKET &clientSocket, char *buffer, int bufferLen);
+	int openServerSocket(int localPortNum, SOCKET &listenSocket);
+	int openClientSocket(SOCKET &clientSocket, std::string serverIP, int serverPort);
+	int acceptConnection(SOCKET &listenSocket, SOCKET &acceptSocket);
+	int rx(SOCKET &socket, char *buffer, int bufferLen);
+	int tx(SOCKET &socket, const char *buffer, int bufferLen);
 	int shutdownSocket(SOCKET &socket);
 	int closeSocket(SOCKET &socket);
 };

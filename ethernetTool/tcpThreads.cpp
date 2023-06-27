@@ -1,7 +1,31 @@
 #include "tcpThreads.h"
 #include "server.h"
 #include "session.h"
+#include "client.h"
+#include "sortFunctions.h"
+#include "tcpStructs.h"
 #include "atomicBool.h"
+
+void startClientThread(std::vector<std::string> &tokens)
+{
+	clientStruct clientStruct;
+	int result = sortClientCommands(tokens, clientStruct);
+	if (result != 0)
+	{
+		return;
+	}
+	else
+	{
+		try {
+			std::thread clientThread(startClient, clientStruct);
+			clientThread.detach();
+		}
+		catch (...)
+		{
+			std::cout << "Client start failed.\n";
+		}
+	}
+}
 
 void startSessionThread(SOCKET socket, int sessionType)
 {

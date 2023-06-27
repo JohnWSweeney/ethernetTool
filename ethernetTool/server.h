@@ -1,11 +1,12 @@
 #pragma once
 #include <iostream>
+#include "tcpStructs.h"
 
 class Server
 {
 public:
-	Server(){};
-	~Server(){}
+	Server() {};
+	~Server() {}
 	void run(int portNum, int sessionType);
 };
 

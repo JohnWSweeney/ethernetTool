@@ -6,14 +6,8 @@
 void Server::run(int portNum, int sessionType)
 {
 	tcp server;
-	sockStruct sockStruct;
-	int result = server.openSocket(portNum, sockStruct);
-	if (result != 0)
-	{
-		return;
-	}
-
-	result = server.bindListen(sockStruct);
+	serverStruct serverStruct;
+	int result = server.openServerSocket(portNum, serverStruct.listenSocket);
 	if (result != 0)
 	{
 		return;
@@ -24,17 +18,17 @@ void Server::run(int portNum, int sessionType)
 	}
 
 	do {
-		result = server.socketReadStatus(sockStruct.listenSocket);
+		result = server.socketReadStatus(serverStruct.listenSocket);
 		if (result > 0)
 		{
-			int acceptResult = server.acceptConnection(sockStruct);
+			int acceptResult = server.acceptConnection(serverStruct.listenSocket, serverStruct.acceptSocket);
 			if (acceptResult == 0)
 			{
-				startSessionThread(std::move(sockStruct.acceptSocket), sessionType);
+				startSessionThread(std::move(serverStruct.acceptSocket), sessionType);
 			}
 		}
 	} while (serverStatus);
-	server.closeSocket(sockStruct.listenSocket);
+	server.closeSocket(serverStruct.listenSocket);
 	std::cout << "Server terminated on port " << portNum << ".\n";
 }
 
