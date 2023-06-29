@@ -84,6 +84,9 @@ To stop all active threads and exit the app, enter:
 [ethernetTool v1.2.0](https://github.com/JohnWSweeney/ethernetTool/releases/download/v1.2.0/ethernetTool_v1_2_0.exe) [51 kB]
 
 ## ChangeLog
+v1.2.1
+- Updated sortClientCommands function in sortFunctions.h/cpp, added supporting functions.
+
 v1.2.0
 - Added client class with message function.
 - Updated tcp class.
