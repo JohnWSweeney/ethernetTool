@@ -17,8 +17,11 @@ void getInput(std::vector<std::string> &tokens)
 	} while (tokens.empty());
 }
 
-void startMenu(bool& running, std::vector<std::string>& tokens)
+void startMenu(bool& running)
 {
+	std::vector<std::string> tokens;
+	getInput(tokens);
+
 	// start thread running UDP listen function.
 	if (tokens[0] == "listen")
 	{
@@ -42,7 +45,14 @@ void startMenu(bool& running, std::vector<std::string>& tokens)
 	// start TCP servwr thread.
 	else if (tokens[0] == "server")
 	{
-		startServerThread(tokens);
+		if (tokens[1] == "stop")
+		{
+			serverStatus = false;
+		}
+		else
+		{
+			startServerThread(tokens);
+		}
 	}
 	// start TCP client thread.
 	else if (tokens[0] == "client")

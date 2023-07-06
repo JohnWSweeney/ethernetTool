@@ -1,6 +1,5 @@
 #pragma once
 #include <iostream>
-#include "tcpStructs.h"
 
 class Server
 {

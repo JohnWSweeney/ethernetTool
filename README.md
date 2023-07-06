@@ -81,9 +81,13 @@ To stop all active threads and exit the app, enter:
 - Command case-insensitivity.
 
 ## Download
-[ethernetTool v1.2.0](https://github.com/JohnWSweeney/ethernetTool/releases/download/v1.2.0/ethernetTool_v1_2_0.exe) [51 kB]
+[ethernetTool v1.2.2](https://github.com/JohnWSweeney/ethernetTool/releases/download/v1.2.2/ethernetTool_v1_2_2.exe) [53 kB]
 
 ## ChangeLog
+v1.2.2
+- Updated tcp, server, session, and client classes.
+- Added tcpCommands .h/cpp to handle server, client commands.
+
 v1.2.1
 - Updated sortClientCommands function in sortFunctions.h/cpp, added supporting functions.
 

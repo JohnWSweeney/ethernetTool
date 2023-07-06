@@ -45,10 +45,10 @@
     <ClCompile Include="tcp.cpp">
       <Filter>Source Files</Filter>
     </ClCompile>
-    <ClCompile Include="sortFunctions.cpp">
+    <ClCompile Include="client.cpp">
       <Filter>Source Files</Filter>
     </ClCompile>
-    <ClCompile Include="client.cpp">
+    <ClCompile Include="tcpCommands.cpp">
       <Filter>Source Files</Filter>
     </ClCompile>
   </ItemGroup>
@@ -80,13 +80,10 @@
     <ClInclude Include="tcp.h">
       <Filter>Header Files</Filter>
     </ClInclude>
-    <ClInclude Include="tcpStructs.h">
-      <Filter>Header Files</Filter>
-    </ClInclude>
-    <ClInclude Include="sortFunctions.h">
-      <Filter>Header Files</Filter>
-    </ClInclude>
     <ClInclude Include="client.h">
+      <Filter>Header Files</Filter>
+    </ClInclude>
+    <ClInclude Include="tcpCommands.h">
       <Filter>Header Files</Filter>
     </ClInclude>
   </ItemGroup>

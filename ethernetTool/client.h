@@ -1,20 +1,14 @@
 #pragma once
 #include <iostream>
-#include "tcpStructs.h"
+#include "tcpCommands.h"
 
 class Client
 {
 public:
-	Client()
-	{
-		std::cout << "Client started.\n";
-	}
-	~Client()
-	{
-		std::cout << "Client closed.\n\n";
-	}
-	void run(clientStruct clientStruct);
-	void message(clientStruct clientStruct);
+	Client() {}
+	~Client() {}
+	void run(clientCmds clientCmds);
+	void message(clientCmds clientCmds);
 };
 
-void startClient(clientStruct clientStruct);
+void startClient(clientCmds clientCmds);

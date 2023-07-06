@@ -21,6 +21,7 @@ private:
 	long us = 1;
 public:
 	int socketReadStatus(SOCKET &socket);
+	int socketWriteStatus(SOCKET &socket);
 	int openServerSocket(int localPortNum, SOCKET &listenSocket);
 	int openClientSocket(SOCKET &clientSocket, std::string serverIP, int serverPort);
 	int acceptConnection(SOCKET &listenSocket, SOCKET &acceptSocket);

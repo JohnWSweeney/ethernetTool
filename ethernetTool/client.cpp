@@ -1,11 +1,12 @@
 #include "client.h"
 #include "tcp.h"
+#include "atomicBool.h"
 
-void Client::run(clientStruct clientStruct)
+void Client::run(clientCmds clientCmds)
 {
-	if (clientStruct.clientType = 1)
+	if (clientCmds.clientType == 0)
 	{
-		this->message(clientStruct);
+		this->message(clientCmds);
 	}
 	else
 	{
@@ -13,31 +14,33 @@ void Client::run(clientStruct clientStruct)
 	}
 }
 
-void Client::message(clientStruct clientStruct)
+void Client::message(clientCmds clientCmds)
 {
 	tcp clientMessage;
-	int result = clientMessage.openClientSocket(clientStruct.socket, clientStruct.serverIP, clientStruct.serverPort);
+	SOCKET socket = INVALID_SOCKET;
+	int result = clientMessage.openClientSocket(socket, clientCmds.serverIP, clientCmds.serverPortNum);
 	if (result != 0)
 	{
 		return;
 	}
 
-	const char *sendbuf = clientStruct.msg.c_str();
-	result = clientMessage.tx(clientStruct.socket, sendbuf, (int)strlen(sendbuf));
-	if (result == SOCKET_ERROR)
-	{
-		std::cout << "send failed with error: " << WSAGetLastError() << '\n';
-		clientMessage.closeSocket(clientStruct.socket);
-		return;
-	}
-	else
-	{
-		std::cout << "Message sent: " << sendbuf << '\n';
-	}
+	const char *sendbuf = clientCmds.msg.c_str();
+	do {
+		result = clientMessage.tx(socket, sendbuf, (int)strlen(sendbuf));
+		if (result == SOCKET_ERROR)
+		{
+			std::cout << "Client send failed with error: " << WSAGetLastError() << '\n';
+			break;
+		}
+		else if (result >= 0)
+		{
+			std::cout << "Client sent: " << sendbuf << '\n';
+		}
+	} while (result < 0);
 }
 
-void startClient(clientStruct clientStruct)
+void startClient(clientCmds clientCmds)
 {
 	Client newClient;
-	newClient.run(clientStruct);
+	newClient.run(clientCmds);
 }

@@ -1,29 +1,23 @@
 #include "tcpThreads.h"
+#include "tcpCommands.h"
 #include "server.h"
 #include "session.h"
 #include "client.h"
-#include "sortFunctions.h"
-#include "tcpStructs.h"
 #include "atomicBool.h"
 
-void startClientThread(std::vector<std::string> &tokens)
+void startServerThread(std::vector<std::string> tokens)
 {
-	clientStruct clientStruct;
-	int result = sortClientCommands(tokens, clientStruct);
+	serverCmds serverCmds;
+	int result = populateServerCmds(tokens, serverCmds);
 	if (result != 0)
 	{
 		return;
 	}
 	else
 	{
-		try {
-			std::thread clientThread(startClient, clientStruct);
-			clientThread.detach();
-		}
-		catch (...)
-		{
-			std::cout << "Client start failed.\n";
-		}
+		serverStatus = true;
+		std::thread serverThread(startServer, serverCmds.portNum, serverCmds.sessionType);
+		serverThread.detach();
 	}
 }
 
@@ -39,41 +33,23 @@ void startSessionThread(SOCKET socket, int sessionType)
 	}
 }
 
-void startServerThread(std::vector<std::string> &tokens)
+void startClientThread(std::vector<std::string> tokens)
 {
-	if (tokens[1] == "listen" || tokens[1] == "echo")
+	clientCmds clientCmds;
+	int result = populateClientCmds(tokens, clientCmds);
+	if (result != 0)
 	{
-		int sessionType;
-		if (tokens[1] == "listen")
-		{
-			sessionType = 0;
-		}
-		else if (tokens[1] == "echo")
-		{
-			sessionType = 1;
-		}
-
-		try {
-			int portNum = std::stoi(tokens[2]);
-			serverStatus = true;
-			std::thread serverThread(startServer, portNum, sessionType);
-			serverThread.detach();
-		}
-		catch (std::invalid_argument)
-		{
-			std::cout << "Invalid port number.\n";
-		}
-		catch (std::out_of_range)
-		{
-			std::cout << "Port number is out of range.\n";
-		}
-	}
-	else if (tokens[1] == "stop")
-	{
-		serverStatus = false;
+		return;
 	}
 	else
 	{
-		std::cout << "Invalid start/stop command.\n";
+		try {
+			std::thread clientThread(startClient, clientCmds);
+			clientThread.detach();
+		}
+		catch (...)
+		{
+			std::cout << "Client start failed.\n";
+		}
 	}
 }

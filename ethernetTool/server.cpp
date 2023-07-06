@@ -6,29 +6,30 @@
 void Server::run(int portNum, int sessionType)
 {
 	tcp server;
-	serverStruct serverStruct;
-	int result = server.openServerSocket(portNum, serverStruct.listenSocket);
+	SOCKET listenSocket = INVALID_SOCKET;
+	int result = server.openServerSocket(portNum, listenSocket);
 	if (result != 0)
 	{
 		return;
 	}
 	else
 	{
-		std::cout << "Server started.\n\n";
+		std::cout << "Server started.\n";
 	}
 
 	do {
-		result = server.socketReadStatus(serverStruct.listenSocket);
+		result = server.socketReadStatus(listenSocket);
 		if (result > 0)
 		{
-			int acceptResult = server.acceptConnection(serverStruct.listenSocket, serverStruct.acceptSocket);
+			SOCKET acceptSocket = INVALID_SOCKET;
+			int acceptResult = server.acceptConnection(listenSocket, acceptSocket);
 			if (acceptResult == 0)
 			{
-				startSessionThread(std::move(serverStruct.acceptSocket), sessionType);
+				startSessionThread(std::move(acceptSocket), sessionType);
 			}
 		}
 	} while (serverStatus);
-	server.closeSocket(serverStruct.listenSocket);
+	server.closeSocket(listenSocket);
 	std::cout << "Server terminated on port " << portNum << ".\n";
 }
 
