@@ -29,12 +29,11 @@ void Session::listen(SOCKET socket)
 		{
 			std::cout << "Server received: " << newMsg.buffer << '\n';
 		}
-		else if (result == SOCKET_ERROR)
+		else if (result < -1)
 		{
-			std::cout << "Server listen rx failed with error: " << WSAGetLastError() << '\n';
-			break;
+			std::cout << "Server listen rx failed.\n";
 		}
-	} while (result < 0);
+	} while (result > 0);
 }
 
 void Session::echo(SOCKET socket)
@@ -46,24 +45,22 @@ void Session::echo(SOCKET socket)
 		result = echo.rx(socket, newMsg.buffer, newMsg.bufferLen);
 		if (result > 0)
 		{
-			int sendResult = echo.tx(socket, newMsg.buffer, result);
-			if (sendResult == SOCKET_ERROR)
-			{
-				std::cout << "Server echo tx failed with error: " << WSAGetLastError() << '\n';
-				break;
-			}
-			else if (sendResult >= 0)
+			int txResult = echo.tx(socket, newMsg.buffer, result);
+			if (txResult > 0)
 			{
 				std::cout << "Server echoed: " << newMsg.buffer << '\n';
 			}
+			else if (txResult < -1)
+			{
+				std::cout << "Server echo.tx failed.\n";
+				break;
+			}
 		}
-		else if (result == SOCKET_ERROR)
+		else if (result < -1)
 		{
-			std::cout << "Server echo rx failed with error: " << WSAGetLastError() << '\n';
-			break;
+			std::cout << "Server echo.rx failed.\n";
 		}
-
-	} while (result < 0);
+	} while (result > 0);
 }
 
 void startSession(SOCKET socket, int sessionType)

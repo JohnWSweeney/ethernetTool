@@ -16,27 +16,27 @@ void Client::run(clientCmds clientCmds)
 
 void Client::message(clientCmds clientCmds)
 {
-	tcp clientMessage;
+	tcp asdf;
 	SOCKET socket = INVALID_SOCKET;
-	int result = clientMessage.openClientSocket(socket, clientCmds.serverIP, clientCmds.serverPortNum);
+	int result = asdf.openClientSocket(socket, clientCmds.serverIP, clientCmds.serverPortNum);
 	if (result != 0)
 	{
 		return;
 	}
 
 	const char *sendbuf = clientCmds.msg.c_str();
+	int len = (int)strlen(sendbuf);
 	do {
-		result = clientMessage.tx(socket, sendbuf, (int)strlen(sendbuf));
-		if (result == SOCKET_ERROR)
-		{
-			std::cout << "Client send failed with error: " << WSAGetLastError() << '\n';
-			break;
-		}
-		else if (result >= 0)
+		result = asdf.tx(socket, sendbuf, len);
+		if (result > 0)
 		{
 			std::cout << "Client sent: " << sendbuf << '\n';
 		}
-	} while (result < 0);
+		else if (result == -1)
+		{
+			std::cout << "Client message.tx failed.\n";
+		}
+	} while (result < len);
 }
 
 void startClient(clientCmds clientCmds)

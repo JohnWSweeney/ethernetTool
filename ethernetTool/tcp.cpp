@@ -166,24 +166,31 @@ int tcp::rx(SOCKET &socket, char *buffer, int bufferLen)
 	if (rxReady > 0) // socket ready.
 	{
 		int result = recv(socket, buffer, bufferLen, 0);
-		if (result >= 0)
+		if (result > 0)
 		{
 			return result;
 		}
-		else // socket error.
+		else if (result == 0) // connection closed gracefully.
 		{
 			closeSocket(socket);
-			return SOCKET_ERROR;
+			return -1;
+		}
+		else if (result == SOCKET_ERROR)
+		{
+			std::cout << "rx.recv failed with error: " << WSAGetLastError() << '\n';
+			closeSocket(socket);
+			return -2;
 		}
 	}
 	else if (rxReady == 0) // timeout.
 	{
-		return -1;
+		return 0;
 	}
-	else // socket error.
+	else if (rxReady == SOCKET_ERROR)
 	{
+		std::cout << "rx.select failed with error: " << WSAGetLastError() << '\n';
 		closeSocket(socket);
-		return SOCKET_ERROR;
+		return -2;
 	}
 }
 
@@ -193,16 +200,26 @@ int tcp::tx(SOCKET &socket, const char *buffer, int bufferLen)
 	if (txReady > 0) // socket ready.
 	{
 		int result = send(socket, buffer, bufferLen, 0);
-		return result;
+		if (result > 0)
+		{
+			return result;
+		}
+		else if (result == SOCKET_ERROR)
+		{
+			std::cout << "tx.send failed with error: " << WSAGetLastError() << '\n';
+			closeSocket(socket);
+			return -1;
+		}
 	}
 	else if (txReady == 0) // timeout.
 	{
-		return -1;
+		return 0;
 	}
-	else // socket error.
+	else if (txReady == SOCKET_ERROR)
 	{
+		std::cout << "tx.select failed with error: " << WSAGetLastError() << '\n';
 		closeSocket(socket);
-		return SOCKET_ERROR;
+		return -1;
 	}
 }
 

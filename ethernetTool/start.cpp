@@ -85,12 +85,10 @@ void startMenu(bool& running)
 		counterStatus = false;
 		serverStatus = false;
 		running = false;
-		Sleep(750);
 	}
 	// Reject all other inputs.
 	else
 	{
 		std::cout << "Invalid function command.\n";
 	}
-	tokens.clear();
 }

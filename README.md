@@ -3,7 +3,7 @@
 A Windows console TCP/IP diagnostic app. UDP functions include listen, message, echo, and counter stream. TCP functions include listen and echo servers and client message. The app is built on the Winsock API and supports multithreading.
 
 ## Functions
-The app opens a console window on startup. Enter the *command* keywords separated by a space. Commands are case-sensitive. Function names are entered first, followed by any parameters. For example:
+The app opens a console window on startup. Enter the *command* keywords separated by a space. Commands are case-sensitive. Function names are entered first, followed by parameters. For example:
 >*functionName parameter1 parameter2 ...* 
 
 ## UDP Functions
@@ -81,9 +81,13 @@ To stop all active threads and exit the app, enter:
 - Command case-insensitivity.
 
 ## Download
-[ethernetTool v1.2.2](https://github.com/JohnWSweeney/ethernetTool/releases/download/v1.2.2/ethernetTool_v1_2_2.exe) [53 kB]
+[ethernetTool v1.2.3](https://github.com/JohnWSweeney/ethernetTool/releases/download/v1.2.3/ethernetTool_v1_2_3.exe) [54 kB]
 
 ## ChangeLog
+v1.2.3
+- Updated tcp class rx,tx functions and return codes.
+- Updated server class listen, echo and client class message functions.
+
 v1.2.2
 - Updated tcp, server, session, and client classes.
 - Added tcpCommands .h/cpp to handle server, client commands.
