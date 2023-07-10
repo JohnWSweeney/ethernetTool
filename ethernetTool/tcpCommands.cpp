@@ -83,50 +83,66 @@ int getMsg(std::vector<std::string> &tokens, int index, std::string &msg)
 
 int populateServerCmds(std::vector<std::string> tokens, serverCmds &serverCmds)
 {
-	int result = getSessionType(tokens, 1, serverCmds.sessionType);
-	if (result != 0)
+	if (tokens.size() < 3)
 	{
-		return 1;
-	}
-
-	result = getPortNum(tokens, 2, serverCmds.portNum);
-	if (result != 0)
-	{
+		std::cout << "Too few server commands.\n";
 		return 1;
 	}
 	else
 	{
-		return 0;
+		int result = getSessionType(tokens, 1, serverCmds.sessionType);
+		if (result != 0)
+		{
+			return 1;
+		}
+
+		result = getPortNum(tokens, 2, serverCmds.portNum);
+		if (result != 0)
+		{
+			return 1;
+		}
+		else
+		{
+			return 0;
+		}
 	}
 }
 
 int populateClientCmds(std::vector<std::string> tokens, clientCmds &clientCmds)
 {
-	int result = getClientType(tokens, 1, clientCmds.clientType);
-	if (result != 0)
+	if (tokens.size() < 5)
 	{
-		return 1;
-	}
-
-	result = getServerIP(tokens, 2, clientCmds.serverIP);
-	if (result != 0)
-	{
-		return 1;
-	}
-
-	result = getPortNum(tokens, 3, clientCmds.serverPortNum);
-	if (result != 0)
-	{
-		return 1;
-	}
-
-	result = getMsg(tokens, 4, clientCmds.msg);
-	if (result != 0)
-	{
+		std::cout << "Too few client commands.\n";
 		return 1;
 	}
 	else
 	{
-		return 0;
+		int result = getClientType(tokens, 1, clientCmds.clientType);
+		if (result != 0)
+		{
+			return 1;
+		}
+
+		result = getServerIP(tokens, 2, clientCmds.serverIP);
+		if (result != 0)
+		{
+			return 1;
+		}
+
+		result = getPortNum(tokens, 3, clientCmds.serverPortNum);
+		if (result != 0)
+		{
+			return 1;
+		}
+
+		result = getMsg(tokens, 4, clientCmds.msg);
+		if (result != 0)
+		{
+			return 1;
+		}
+		else
+		{
+			return 0;
+		}
 	}
 }
