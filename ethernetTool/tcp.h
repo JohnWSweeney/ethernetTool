@@ -27,6 +27,5 @@ public:
 	int acceptConnection(SOCKET &listenSocket, SOCKET &acceptSocket);
 	int rx(SOCKET &socket, char *buffer, int bufferLen);
 	int tx(SOCKET &socket, const char *buffer, int bufferLen);
-	int shutdownSocket(SOCKET &socket);
-	int closeSocket(SOCKET &socket);
+	int closeConnection(SOCKET socket, bool isClient);
 };

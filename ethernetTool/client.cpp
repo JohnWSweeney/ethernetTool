@@ -16,28 +16,42 @@ void Client::run(clientCmds clientCmds)
 
 void Client::message(clientCmds clientCmds)
 {
-	tcp asdf;
+	tcp message;
 	SOCKET socket = INVALID_SOCKET;
-	int result = asdf.openClientSocket(socket, clientCmds.serverIP, clientCmds.serverPortNum);
+	int result = message.openClientSocket(socket, clientCmds.serverIP, clientCmds.serverPortNum);
 	if (result != 0)
 	{
+		closesocket(socket);
+		WSACleanup();
 		return;
 	}
 
+	// send message to server.
 	const char *sendbuf = clientCmds.msg.c_str();
 	int len = (int)strlen(sendbuf);
-	do {
-		result = asdf.tx(socket, sendbuf, len);
-		if (result > 0)
-		{
-			std::cout << "Client sent: " << sendbuf << '\n';
-		}
-		else if (result == -1)
-		{
-			std::cout << "Client message.tx failed.\n";
-		}
-	} while (result < len);
+	result = message.tx(socket, sendbuf, len);
+	if (result > 0)
+	{
+		std::cout << "Client sent: " << sendbuf << '\n';
+	}
+	else if (result == -1)
+	{
+		std::cout << "Client: message.tx failed.\n";
+		closesocket(socket);
+		WSACleanup();
+		return;
+	}
+
+	// gracefully close connection.
+	result = message.closeConnection(socket, true);
+	if (result != 0)
+	{
+		std::cout << "Client: message.closeConnection failed.\n";
+		return;
+	}
+	std::cout << "Client: message ended.\n";
 }
+
 
 void startClient(clientCmds clientCmds)
 {

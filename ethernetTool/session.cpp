@@ -25,15 +25,28 @@ void Session::listen(SOCKET socket)
 	do {
 		msg newMsg;
 		result = listen.rx(socket, newMsg.buffer, newMsg.bufferLen);
-		if (result > 0)
+		if (result > 0) // message received.
 		{
 			std::cout << "Server received: " << newMsg.buffer << '\n';
 		}
-		else if (result < -1)
+		else if (result == -1) // peer closed connection gracefully.
 		{
-			std::cout << "Server listen rx failed.\n";
+			std::cout << "Server: listen peer gracefully closed connection.\n";
 		}
-	} while (result > 0);
+		else if (result < -1) // error.
+		{
+			std::cout << "Server: listen.rx failed.\n";
+		}
+	} while (result > -1);
+
+	// gracefully close connection.
+	result = listen.closeConnection(socket, false);
+	if (result != 0)
+	{
+		std::cout << "Server: listen.closeConnection failed.\n";
+		return;
+	}
+	std::cout << "Server: listen session ended.\n";
 }
 
 void Session::echo(SOCKET socket)
@@ -43,24 +56,40 @@ void Session::echo(SOCKET socket)
 	do {
 		msg newMsg;
 		result = echo.rx(socket, newMsg.buffer, newMsg.bufferLen);
-		if (result > 0)
+		if (result > 0) // message received.
 		{
-			int txResult = echo.tx(socket, newMsg.buffer, result);
-			if (txResult > 0)
+			int sendResult = echo.tx(socket, newMsg.buffer, result);
+			if (sendResult > 0) // message echoed to peer.
 			{
 				std::cout << "Server echoed: " << newMsg.buffer << '\n';
 			}
-			else if (txResult < -1)
+			else if (sendResult == -1) // echo.tx error.
 			{
-				std::cout << "Server echo.tx failed.\n";
-				break;
+				std::cout << "Server: echo.tx failed.\n";
+				closesocket(socket);
+				return;
 			}
 		}
-		else if (result < -1)
+		else if (result == -1) // peer closed connection gracefully.
 		{
-			std::cout << "Server echo.rx failed.\n";
+			std::cout << "Server: echo peer gracefully closed connection.\n";
 		}
-	} while (result > 0);
+		else if (result < -1) // error.
+		{
+			std::cout << "Server: echo.rx failed.\n";
+			closesocket(socket);
+			return;
+		}
+	} while (result > -1);
+
+	// gracefully close connection.
+	result = echo.closeConnection(socket, false);
+	if (result != 0)
+	{
+		std::cout << "Server: echo.closeConnection failed.\n";
+		return;
+	}
+	std::cout << "Server: echo session ended.\n";
 }
 
 void startSession(SOCKET socket, int sessionType)

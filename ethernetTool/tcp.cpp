@@ -63,7 +63,6 @@ int tcp::openServerSocket(int localPortNum, SOCKET &listenSocket)
 	if (result != 0)
 	{
 		std::cout << "getaddrinfo failed with error: " << result << '\n';
-		WSACleanup();
 		return 1;
 	}
 
@@ -73,7 +72,6 @@ int tcp::openServerSocket(int localPortNum, SOCKET &listenSocket)
 	{
 		std::cout << "Socket failed with error: " << WSAGetLastError() << '\n';
 		freeaddrinfo(host);
-		WSACleanup();
 		return 1;
 	}
 
@@ -82,7 +80,6 @@ int tcp::openServerSocket(int localPortNum, SOCKET &listenSocket)
 	if (result == SOCKET_ERROR)
 	{
 		std::cout << "Bind failed with error: " << WSAGetLastError() << '\n';
-		closeSocket(listenSocket);
 		return 1;
 	}
 
@@ -93,7 +90,6 @@ int tcp::openServerSocket(int localPortNum, SOCKET &listenSocket)
 	if (result == SOCKET_ERROR)
 	{
 		std::cout << "listen failed with error: " << WSAGetLastError() << '\n';
-		closeSocket(listenSocket);
 		return 1;
 	}
 	else
@@ -120,7 +116,6 @@ int tcp::openClientSocket(SOCKET &clientSocket, std::string serverIP, int server
 	if (clientSocket == INVALID_SOCKET)
 	{
 		std::cout << "Client socket failed with error: " << WSAGetLastError() << '\n';
-		WSACleanup();
 		return 1;
 	}
 
@@ -135,7 +130,6 @@ int tcp::openClientSocket(SOCKET &clientSocket, std::string serverIP, int server
 	if (result == SOCKET_ERROR)
 	{
 		std::cout << "Connect to server failed with error: " << WSAGetLastError() << '\n';
-		closeSocket(clientSocket);
 		return 1;
 	}
 	else // connected to server.
@@ -150,7 +144,6 @@ int tcp::acceptConnection(SOCKET &listenSocket, SOCKET &acceptSocket)
 	if (acceptSocket == INVALID_SOCKET)
 	{
 		std::cout << "accept failed with error: " << WSAGetLastError() << '\n';
-		closeSocket(acceptSocket);
 		return 1;
 	}
 	else // client connected.
@@ -172,13 +165,11 @@ int tcp::rx(SOCKET &socket, char *buffer, int bufferLen)
 		}
 		else if (result == 0) // connection closed gracefully.
 		{
-			closeSocket(socket);
 			return -1;
 		}
 		else if (result == SOCKET_ERROR)
 		{
 			std::cout << "rx.recv failed with error: " << WSAGetLastError() << '\n';
-			closeSocket(socket);
 			return -2;
 		}
 	}
@@ -189,7 +180,6 @@ int tcp::rx(SOCKET &socket, char *buffer, int bufferLen)
 	else if (rxReady == SOCKET_ERROR)
 	{
 		std::cout << "rx.select failed with error: " << WSAGetLastError() << '\n';
-		closeSocket(socket);
 		return -2;
 	}
 }
@@ -207,7 +197,6 @@ int tcp::tx(SOCKET &socket, const char *buffer, int bufferLen)
 		else if (result == SOCKET_ERROR)
 		{
 			std::cout << "tx.send failed with error: " << WSAGetLastError() << '\n';
-			closeSocket(socket);
 			return -1;
 		}
 	}
@@ -218,45 +207,45 @@ int tcp::tx(SOCKET &socket, const char *buffer, int bufferLen)
 	else if (txReady == SOCKET_ERROR)
 	{
 		std::cout << "tx.select failed with error: " << WSAGetLastError() << '\n';
-		closeSocket(socket);
 		return -1;
 	}
 }
 
-int tcp::shutdownSocket(SOCKET &socket)
+int tcp::closeConnection(SOCKET socket, bool isClient)
 {
-	int result = shutdown(socket, SD_BOTH);
+	// notify peer of imminent connection closure.
+	int result = shutdown(socket, SD_SEND);
 	if (result == SOCKET_ERROR)
 	{
-		std::cout << "shutdown failed with error: " << WSAGetLastError() << '\n';
-		closeSocket(socket);
-		return 1;
-	}
-	else
-	{
-		std::cout << "shutdown sucessful.\n";
-		return 0;
-	}
-}
-
-int tcp::closeSocket(SOCKET &socket)
-{
-	// Clean up.
-	int result = closesocket(socket);
-	if (result == SOCKET_ERROR)
-	{
-		std::cout << "socketclose failed with error: " << WSAGetLastError() << '\n';
+		std::cout << "closeConnection.shutdown failed with error: " << WSAGetLastError() << '\n';
+		closesocket(socket);
+		if (isClient == true)
+		{
+			WSACleanup();
+		}
 		return 1;
 	}
 
-	result = WSACleanup();
-	if (result == SOCKET_ERROR)
+	// wait for graceful connection close reply from peer.
+	do {
+		msg sdMsg;
+		result = this->rx(socket, sdMsg.buffer, sdMsg.bufferLen);
+		if (result < -1)
+		{
+			std::cout << "closeConnection.recv failed with error: " << WSAGetLastError() << '\n';
+			closesocket(socket);
+			if (isClient == true)
+			{
+				WSACleanup();
+			}
+			return 1;
+		}
+	} while (result != -1);
+
+	closesocket(socket);
+	if (isClient == true)
 	{
-		std::cout << "WSACleanup failed with error: " << WSAGetLastError() << '\n';
-		return 1;
+		WSACleanup();
 	}
-	else
-	{
-		return 0;
-	}
+	return 0;
 }
