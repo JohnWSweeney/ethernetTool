@@ -12,6 +12,11 @@ int getSessionType(std::vector<std::string> tokens, int index, int &sessionType)
 		sessionType = 1;
 		return 0;
 	}
+	else if (tokens[index] == "pong")
+	{
+		sessionType = 2;
+		return 0;
+	}
 	else
 	{
 		std::cout << "Invalid server session command.\n";
@@ -24,6 +29,11 @@ int getClientType(std::vector<std::string> tokens, int index, int &clientType)
 	if (tokens[index] == "message")
 	{
 		clientType = 0;
+		return 0;
+	}
+	else if (tokens[index] == "ping")
+	{
+		clientType = 1;
 		return 0;
 	}
 	else

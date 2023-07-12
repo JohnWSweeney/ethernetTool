@@ -54,10 +54,25 @@ void startMenu(bool& running)
 			startServerThread(tokens);
 		}
 	}
+	// stop TCP session thread(s).
+	else if (tokens[0] == "session")
+	{
+		if (tokens[1] == "stop")
+		{
+			sessionStatus = false;
+		}
+	}
 	// start TCP client thread.
 	else if (tokens[0] == "client")
 	{
-		startClientThread(tokens);
+		if (tokens[1] == "stop")
+		{
+			clientStatus = false;
+		}
+		else
+		{
+			startClientThread(tokens);
+		}
 	}
 	// stop all active threads.
 	else if (tokens[0] == "stop")
@@ -69,6 +84,8 @@ void startMenu(bool& running)
 			echoStatus = false;
 			counterStatus = false;
 			serverStatus = false;
+			sessionStatus = false;
+			clientStatus = false;
 			std::cout << "All threads stopped.\n";
 		}
 		else
@@ -84,6 +101,8 @@ void startMenu(bool& running)
 		echoStatus = false;
 		counterStatus = false;
 		serverStatus = false;
+		sessionStatus = false;
+		clientStatus = false;
 		running = false;
 	}
 	// Reject all other inputs.

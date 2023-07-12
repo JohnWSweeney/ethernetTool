@@ -8,6 +8,10 @@ void Client::run(clientCmds clientCmds)
 	{
 		this->message(clientCmds);
 	}
+	else if (clientCmds.clientType == 1)
+	{
+		this->ping(clientCmds);
+	}
 	else
 	{
 		return;
@@ -50,6 +54,83 @@ void Client::message(clientCmds clientCmds)
 		return;
 	}
 	std::cout << "Client: message ended.\n";
+}
+
+void Client::ping(clientCmds clientCmds)
+{
+	tcp ping;
+	SOCKET socket = INVALID_SOCKET;
+	int result = ping.openClientSocket(socket, clientCmds.serverIP, clientCmds.serverPortNum);
+	if (result != 0)
+	{
+		std::cout << "Client: ping.openClientSocket failed.\n";
+		closesocket(socket);
+		WSACleanup();
+		return;
+	}
+
+	// send initial message volley to server.
+	const char *sendbuf = clientCmds.msg.c_str();
+	int len = (int)strlen(sendbuf);
+	result = ping.tx(socket, sendbuf, len);
+	if (result > 0)
+	{
+		std::cout << "Client: ping\n";
+	}
+	else if (result == -1)
+	{
+		std::cout << "Client: ping.tx initial volley failed.\n";
+		closesocket(socket);
+		WSACleanup();
+		clientStatus = false;
+		return;
+	}
+
+	// ping-pong message with server until client or server closes connection or error.
+	do {
+		msg newMsg;
+		result = ping.rx(socket, newMsg.buffer, newMsg.bufferLen);
+		if (result > 0) // pong received.
+		{
+			Sleep(1000);
+			int sendResult = ping.tx(socket, newMsg.buffer, result);
+			if (sendResult > 0) // ping sent.
+			{
+				std::cout << "Client: ping\n";
+			}
+			else if (sendResult == -1) // ping.tx error.
+			{
+				std::cout << "Client: ping.tx failed.\n";
+				closesocket(socket);
+				WSACleanup();
+				clientStatus = false;
+				return;
+			}
+		}
+		else if (result == -1) // peer gracefully closed connection.
+		{
+			std::cout << "Client: peer gracefully closed connection.\n";
+			clientStatus = false;
+			break;
+		}
+		else if (result < -1) // error.
+		{
+			std::cout << "Client: ping.rx failed.\n";
+			closesocket(socket);
+			WSACleanup();
+			clientStatus = false;
+			return;
+		}
+	} while (clientStatus);
+
+	// gracefully close connection.
+	result = ping.closeConnection(socket, true);
+	if (result != 0)
+	{
+		std::cout << "Client: ping.closeConnection failed.\n";
+		return;
+	}
+	std::cout << "Client: ping session ended.\n";
 }
 
 

@@ -24,6 +24,10 @@ void startServerThread(std::vector<std::string> tokens)
 void startSessionThread(SOCKET socket, int sessionType)
 {
 	try {
+		if (sessionType == 2)
+		{
+			sessionStatus = true;
+		}
 		std::thread sessionThread(startSession, socket, sessionType);
 		sessionThread.detach();
 	}
@@ -44,6 +48,10 @@ void startClientThread(std::vector<std::string> tokens)
 	else
 	{
 		try {
+			if (clientCmds.clientType > 0)
+			{
+				clientStatus = true;
+			}
 			std::thread clientThread(startClient, clientCmds);
 			clientThread.detach();
 		}

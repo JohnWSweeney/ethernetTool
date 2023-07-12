@@ -68,6 +68,21 @@ To start or stop a server thread running the echo function, enter:
 To start a client thread to send a message to a server, enter:
 > *client message serverIP serverPort yourMessage*
 
+### Client-Server Ping-Pong
+Just for fun, you can ping-pong a message between a client and server. First, start a server that will start a "pong" sessions when a client connects by entering:
+> *server pong portNumber*
+
+When a client connects, the session runs the session class *pong* function that echos messages received and prints "Server: pong" to the console. 
+
+Next, start a client running the client class *ping* function by entering:
+> *client ping serverIP serverPortNumber message*
+
+The client sends *message* to the server and then echos subsequent messages received, printing "Client: ping" to the console. The client and server will ping-pong the message indefinitely, with 1 second delays between volleys. You can stop the volleys on the server side by entering:
+> *session stop*
+
+or on the client side entering:
+> *client stop*
+
 ### App Control
 To stop all active threads, enter:
 > *stop all*
@@ -81,7 +96,7 @@ To stop all active threads and exit the app, enter:
 - Command case-insensitivity.
 
 ## Download
-[ethernetTool v1.2.5](https://github.com/JohnWSweeney/ethernetTool/releases/download/v1.2.5/ethernetTool_v1_2_5.exe) [54 kB]
+[ethernetTool v1.3.0](https://github.com/JohnWSweeney/ethernetTool/releases/download/v1.3.0/ethernetTool_v1_3_0.exe) [57 kB]
 
 ## ChangeLog
 v1.2.5

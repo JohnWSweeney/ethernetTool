@@ -14,6 +14,10 @@ std::string serverTypeStr(int sessionType)
 	{
 		return serverType = "Echo";
 	}
+	else if (sessionType == 2)
+	{
+		return serverType = "Pong";
+	}
 }
 
 void Server::run(int portNum, int sessionType)

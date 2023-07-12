@@ -12,6 +12,10 @@ void Session::run(SOCKET socket, int sessionType)
 	{
 		this->echo(socket);
 	}
+	else if (sessionType == 2)
+	{
+		this->pong(socket);
+	}
 	else
 	{
 		return;
@@ -91,6 +95,58 @@ void Session::echo(SOCKET socket)
 	}
 	std::cout << "Server: echo session ended.\n";
 }
+
+void Session::pong(SOCKET socket)
+{
+	tcp pong;
+	int result;
+
+	// ping-pong message with client until client or server closes connection or error.
+	do {
+		msg newMsg;
+		result = pong.rx(socket, newMsg.buffer, newMsg.bufferLen);
+		if (result > 0) // ping received.
+		{
+			Sleep(1000);
+			int sendResult = pong.tx(socket, newMsg.buffer, result);
+			if (sendResult > 0) // pong sent.
+			{
+				std::cout << "Server: pong\n";
+			}
+			else if (sendResult == -1) // Server pong.tx error.
+			{
+				std::cout << "Server: pong.tx failed.\n";
+				closesocket(socket);
+				WSACleanup();
+				sessionStatus = false;
+				return;
+			}
+		}
+		else if (result == -1) // peer gracefully closed connection.
+		{
+			std::cout << "Server: peer gracefully closed connection.\n";
+			sessionStatus = false;
+			break;
+		}
+		else if (result < -1) // pong.rx error.
+		{
+			std::cout << "Server: pong.rx failed.\n";
+			closesocket(socket);
+			WSACleanup();
+			sessionStatus = false;
+			return;
+		}
+	} while (sessionStatus);
+
+	result = pong.closeConnection(socket, false);
+	if (result != 0)
+	{
+		std::cout << "Server: pong.closeConnection failed.\n";
+		return;
+	}
+	std::cout << "Server: pong session ended.\n";
+}
+
 
 void startSession(SOCKET socket, int sessionType)
 {

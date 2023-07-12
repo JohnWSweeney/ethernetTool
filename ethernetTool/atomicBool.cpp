@@ -5,3 +5,5 @@ std::atomic<bool> messageStatus;
 std::atomic<bool> echoStatus;
 std::atomic<bool> counterStatus;
 std::atomic<bool> serverStatus;
+std::atomic<bool> sessionStatus;
+std::atomic<bool> clientStatus;
