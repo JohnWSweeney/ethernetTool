@@ -99,6 +99,11 @@ To stop all active threads and exit the app, enter:
 [ethernetTool v1.3.0](https://github.com/JohnWSweeney/ethernetTool/releases/download/v1.3.0/ethernetTool_v1_3_0.exe) [57 kB]
 
 ## ChangeLog
+v1.3.0
+- Added client-sever ping-pong feature.
+	- Added ping function to client class.
+	- Added pong function to session class.
+
 v1.2.5
 - Updated tcp class.
 	- Merged shutdown, closeSocket functions into new closeConnection function.
