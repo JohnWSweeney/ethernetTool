@@ -12,6 +12,10 @@ void Client::run(clientCmds clientCmds)
 	{
 		this->ping(clientCmds);
 	}
+	else if (clientCmds.clientType == 2)
+	{
+		this->counter(clientCmds);
+	}
 	else
 	{
 		return;
@@ -25,6 +29,7 @@ void Client::message(clientCmds clientCmds)
 	int result = message.openClientSocket(socket, clientCmds.serverIP, clientCmds.serverPortNum);
 	if (result != 0)
 	{
+		std::cout << "Client: message.openClientSocket failed.\n";
 		closesocket(socket);
 		WSACleanup();
 		return;
@@ -133,6 +138,61 @@ void Client::ping(clientCmds clientCmds)
 	std::cout << "Client: ping session ended.\n";
 }
 
+void Client::counter(clientCmds clientCmds)
+{
+	tcp counter;
+	SOCKET socket = INVALID_SOCKET;
+	int result;
+	result = counter.openClientSocket(socket, clientCmds.serverIP, clientCmds.serverPortNum);
+	if (result != 0)
+	{
+		std::cout << "Client: counter.openClientSocket failed.\n";
+		closesocket(socket);
+		WSACleanup();
+		return;
+	}
+
+	int i = 0; // counter.
+	do {
+		// check if peer has gracefully closed connection.
+		msg sdMsg;
+		result = counter.rx(socket, sdMsg.buffer, sdMsg.bufferLen);
+		if (result == -1) // peer closed connection gracefully.
+		{
+			std::cout << "Client.repeat: peer closed connection gracefully.\n";
+			clientStatus = false;
+			break;
+		}
+
+		// convert int to char, increment on send.
+		std::string bufStr = std::to_string(i);
+		const char *buf = bufStr.c_str();
+		int len = sizeof(buf);
+		result = counter.tx(socket, buf, len);
+		if (result > 0) // counter sent.
+		{
+			std::cout << "Client sent: " << buf << '\n';
+			++i;
+		}
+		else if (result == -1) // counter.tx error.
+		{
+			std::cout << "Client: counter.tx failed.\n";
+			closesocket(socket);
+			WSACleanup();
+			return;
+		}
+		Sleep(1000);
+	} while (clientStatus);
+
+	// gracefully close connection.
+	result = counter.closeConnection(socket, true);
+	if (result != 0)
+	{
+		std::cout << "Client: counter.closeConnection failed.\n";
+		return;
+	}
+	std::cout << "Client: counter ended.\n";
+}
 
 void startClient(clientCmds clientCmds)
 {

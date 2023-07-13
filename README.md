@@ -83,6 +83,13 @@ The client sends *message* to the server and then echos subsequent messages rece
 or on the client side entering:
 > *client stop*
 
+### Client Counter
+To stream a counter from a client, enter:
+> *client counter serverIP serverPort*
+
+The counter is an *int* data type initialized to zero and sends the next increment after a one second delay. You can stop the counter by entering:
+> *client stop*
+
 ### App Control
 To stop all active threads, enter:
 > *stop all*
@@ -91,16 +98,18 @@ To stop all active threads and exit the app, enter:
 > *exit*
 
 ## Future Updates
-- More TCP client functions.
-- GUI version.
 - Command case-insensitivity.
+- GUI version.
 
 ## Download
-[ethernetTool v1.3.0](https://github.com/JohnWSweeney/ethernetTool/releases/download/v1.3.0/ethernetTool_v1_3_0.exe) [57 kB]
+[ethernetTool v1.4.0](https://github.com/JohnWSweeney/ethernetTool/releases/download/v1.4.0/ethernetTool_v1_4_0.exe) [59 kB]
 
 ## ChangeLog
+v1.4.0
+- Added TCP client counter function.
+
 v1.3.0
-- Added client-sever ping-pong feature.
+- Added TCP client-sever ping-pong feature.
 	- Added ping function to client class.
 	- Added pong function to session class.
 
