@@ -138,6 +138,7 @@
     <ClCompile Include="tcpCommands.cpp" />
     <ClCompile Include="tcpThreads.cpp" />
     <ClCompile Include="udp.cpp" />
+    <ClCompile Include="udpCommands.cpp" />
     <ClCompile Include="udpFunctions.cpp" />
     <ClCompile Include="udpThreads.cpp" />
   </ItemGroup>
@@ -151,6 +152,7 @@
     <ClInclude Include="tcpCommands.h" />
     <ClInclude Include="tcpThreads.h" />
     <ClInclude Include="udp.h" />
+    <ClInclude Include="udpCommands.h" />
     <ClInclude Include="udpFunctions.h" />
     <ClInclude Include="udpThreads.h" />
   </ItemGroup>

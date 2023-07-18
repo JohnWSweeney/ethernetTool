@@ -10,21 +10,21 @@ struct datagram
 {
 	IN_ADDR sin_addr;
 	USHORT sin_port;
-	int payloadLen;
-	char payload[65527] = { 0 };
+	const char *destIP;
+	int destPort;
+	char buffer[512] = { 0 };
+	int bufferLen = sizeof(buffer);
 };
 
 class udp
 {
-public:
 	long s = 0;
 	long us = 1;
-	int result = 0;
-	SOCKET udpSocket = INVALID_SOCKET;
-	int socketReadStatus(SOCKET &udpSocket);
-	int socketWriteStatus(SOCKET &udpSocket);
-	int openSocket(int localPortNum);
-	int rx(datagram &rxDatagram);
-	int tx(const char* destIP, int destPortNum, const char *buf, int len);
-	int closeSocket();
+	int socketReadStatus(SOCKET &socket);
+	int socketWriteStatus(SOCKET &socket);
+public:
+	int openSocket(int localPortNum, SOCKET &newSocket);
+	int rx(SOCKET &socket, datagram &datagram);
+	int tx(SOCKET &socket, const char* destIP, int destPortNum, const char *buffer, int len);
+	int closeSocket(SOCKET socket);
 };

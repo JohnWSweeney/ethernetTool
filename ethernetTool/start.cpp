@@ -25,9 +25,16 @@ void startMenu(bool& running)
 	// start thread running UDP listen function.
 	if (tokens[0] == "listen")
 	{
-		startListenThread(tokens);
+		if (tokens[1] == "stop")
+		{
+			listenStatus = false;
+		}
+		else
+		{
+			startListenThread(tokens);
+		}
 	}
-	// Send a single UDP packet.
+	// Send a UDP message.
 	else if (tokens[0] == "message")
 	{
 		startMessageThread(tokens);
@@ -35,12 +42,26 @@ void startMenu(bool& running)
 	// start thread running UDP echo function.
 	else if (tokens[0] == "echo")
 	{
-		startEchoThread(tokens);
+		if (tokens[1] == "stop")
+		{
+			echoStatus = false;
+		}
+		else
+		{
+			startEchoThread(tokens);
+		}	
 	}
 	// start thread running UDP counter function.
 	else if (tokens[0] == "counter")
 	{
-		startCounterThread(tokens);
+		if (tokens[1] == "stop")
+		{
+			counterStatus = false;
+		}
+		else
+		{
+			startCounterThread(tokens);
+		}
 	}
 	// start TCP servwr thread.
 	else if (tokens[0] == "server")

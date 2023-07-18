@@ -65,12 +65,12 @@ int getServerIP(std::vector<std::string> tokens, int index, std::string &serverI
 	}
 	else
 	{
-		serverIP = tokens[2];
+		serverIP = tokens[index];
 	}
 	return 0;
 }
 
-int getPortNum(std::vector<std::string> tokens, int index, int &portNum)
+int getTcpPortNum(std::vector<std::string> tokens, int index, int &portNum)
 {
 	if (tokens[index].empty())
 	{
@@ -129,7 +129,7 @@ int populateServerCmds(std::vector<std::string> tokens, serverCmds &serverCmds)
 			return 1;
 		}
 
-		result = getPortNum(tokens, 2, serverCmds.portNum);
+		result = getTcpPortNum(tokens, 2, serverCmds.portNum);
 		if (result != 0)
 		{
 			return 1;
@@ -170,7 +170,7 @@ int populateClientCmds(std::vector<std::string> tokens, clientCmds &clientCmds)
 			return 1;
 		}
 
-		result = getPortNum(tokens, 3, clientCmds.serverPortNum);
+		result = getTcpPortNum(tokens, 3, clientCmds.serverPortNum);
 		if (result != 0)
 		{
 			return 1;

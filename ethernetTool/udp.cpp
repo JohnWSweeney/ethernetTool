@@ -1,67 +1,56 @@
 #include "udp.h"
 
-int udp::socketReadStatus(SOCKET &udpSocket)
+int udp::socketReadStatus(SOCKET &socket)
 {
 	FD_SET readfds;
 	FD_ZERO(&readfds);
-	FD_SET(udpSocket, &readfds);
+	FD_SET(socket, &readfds);
+
+	FD_SET exceptfds;
+	FD_ZERO(&exceptfds);
+	FD_SET(socket, &exceptfds);
 
 	timeval timeout;
 	timeout.tv_sec = s;
 	timeout.tv_usec = us;
 
-	result = select(0, &readfds, 0, 0, &timeout); // Check socket RX status.
-	if (result == SOCKET_ERROR)
-	{
-		std::cout << "select failed with error: " << WSAGetLastError() << '\n';
-		return 0;
-	}
-	else
-	{
-		return result;
-	}
+	return select(0, &readfds, 0, &exceptfds, &timeout); // Check socket RX status.
 }
 
-int udp::socketWriteStatus(SOCKET &udpSocket)
+int udp::socketWriteStatus(SOCKET &socket)
 {
 	FD_SET writefds;
 	FD_ZERO(&writefds);
-	FD_SET(udpSocket, &writefds);
+	FD_SET(socket, &writefds);
+
+	FD_SET exceptfds;
+	FD_ZERO(&exceptfds);
+	FD_SET(socket, &exceptfds);
 
 	timeval timeout;
 	timeout.tv_sec = s;
 	timeout.tv_usec = us;
 
-	result = select(0, 0, &writefds, 0, &timeout); // Check socket TX status.
-	if (result == SOCKET_ERROR)
-	{
-		std::cout << "select failed with error: " << WSAGetLastError() << '\n';
-		return 0;
-	}
-	else
-	{
-		return result;
-	}
+	return select(0, 0, &writefds, &exceptfds, &timeout); // Check socket TX status.
 }
 
-int udp::openSocket(int localPortNum)
+int udp::openSocket(int localPortNum, SOCKET &newSocket)
 {
 	// Open Winsock dll.
 	WORD wVersionRequested = MAKEWORD(2, 2);
 	WSADATA WinSockData;
-	result = WSAStartup(wVersionRequested, &WinSockData);
+	int result = WSAStartup(wVersionRequested, &WinSockData);
 	if (result != 0)
 	{
 		std::cout << "WSAStartup failed with error: " << result << '\n';
 		return 1;
 	}
 
-	// Update socket.
-	udpSocket = socket(AF_INET, SOCK_DGRAM, IPPROTO_UDP);
-	if (udpSocket == INVALID_SOCKET)
+	// Specify socket type.
+	newSocket = socket(AF_INET, SOCK_DGRAM, IPPROTO_UDP);
+	if (newSocket == INVALID_SOCKET)
 	{
 		std::cout << "socket failed with error: " << WSAGetLastError() << '\n';
-		closeSocket();
 		return 1;
 	}
 
@@ -72,11 +61,10 @@ int udp::openSocket(int localPortNum)
 	local.sin_port = htons(localPortNum);
 
 	// Assign address/port to socket.
-	result = bind(udpSocket, (SOCKADDR *)&local, sizeof(local));
+	result = bind(newSocket, (SOCKADDR *)&local, sizeof(local));
 	if (result == SOCKET_ERROR)
 	{
 		std::cout << "bind failed with error: " << WSAGetLastError() << std::endl;
-		closeSocket();
 		return 1;
 	}
 	else
@@ -85,69 +73,79 @@ int udp::openSocket(int localPortNum)
 	}
 }
 
-int udp::rx(datagram &rxDatagram)
+int udp::rx(SOCKET &socket, datagram &datagram)
 {
 	struct sockaddr_in src; // Dummy socket struct to hold RX packet fields.
 	int srcSize = sizeof(src);
 
-	char rxbuf[65527] = { 0 }; // Payload buffer.
-	int rxbuflen = sizeof(rxbuf);
-
-	int rxReady = socketReadStatus(udpSocket); // Check socket RX status.
+	int rxReady = socketReadStatus(socket); // Check socket RX status.
 	if (rxReady > 0)
 	{
-		int rxBytes = recvfrom(udpSocket, rxbuf, rxbuflen, 0, (SOCKADDR *)&src, &srcSize);
-		if (rxBytes == SOCKET_ERROR)
+		int result = recvfrom(socket, datagram.buffer, datagram.bufferLen, 0, (SOCKADDR *)&src, &srcSize);
+		if (result > 0)
 		{
-			std::cout << "recvfrom failed with error: " << WSAGetLastError() << '\n';
+			datagram.sin_addr = src.sin_addr;
+			datagram.sin_port = src.sin_port;
+			return result;
 		}
-		if (rxBytes > 0)
+		else if (result == 0) // connection closed gracefully.
 		{
-			rxDatagram.sin_addr = src.sin_addr;
-			rxDatagram.sin_port = src.sin_port;
-			rxDatagram.payloadLen = rxBytes;
-			strcpy_s(rxDatagram.payload, rxbuf);
-			return rxBytes;
+			return -1;
 		}
-		else
+		else if (result == SOCKET_ERROR)
 		{
-			return 0;
+			std::cout << "rx.recvfrom failed with error: " << WSAGetLastError() << '\n';
+			return -2;
 		}
 	}
-	else // Necessary to prevent looping.
+	else if (rxReady == 0) // timeout.
 	{
 		return 0;
 	}
+	else if(rxReady == SOCKET_ERROR)
+	{
+		std::cout << "rx.select failed with error : " << WSAGetLastError() << '\n';
+		return -2;
+	}
 }
 
-int udp::tx(const char* destIP, int destPortNum, const char *buf, int len)
+int udp::tx(SOCKET &socket, const char* destIP, int destPort, const char *buffer, int len)
 {
 	// Destination socket parameters.
 	struct sockaddr_in dest;
 	dest.sin_family = AF_INET;
 	dest.sin_addr.s_addr = inet_addr(destIP);
-	dest.sin_port = destPortNum;
+	dest.sin_port = destPort;
 
-	int txReady = socketWriteStatus(udpSocket);// Check socket TX status.
-	if (txReady > 0)
+	int txReady = socketWriteStatus(socket); // Check socket TX status.
+	if (txReady > 0) // socket ready.
 	{
-		result = sendto(udpSocket, buf, len, 0, (SOCKADDR *)&dest, sizeof(dest));
-		if (result == SOCKET_ERROR)
+		int result = sendto(socket, buffer, len, 0, (SOCKADDR *)&dest, sizeof(dest));
+		if (result > 0)
 		{
-			std::cout << "sendto failed with error: " << WSAGetLastError() << std::endl;
-			return 1;
+			return result;
 		}
-		else
+		else if (result == SOCKET_ERROR)
 		{
-			return 0;
+			std::cout << "tx.sendto failed with error: " << WSAGetLastError() << '\n';
+			return -1;
 		}
+	}
+	else if (txReady == 0) // timeout.
+	{
+		return 0;
+	}
+	else if (txReady == SOCKET_ERROR)
+	{
+		std::cout << "tx.select failed with error: " << WSAGetLastError() << '\n';
+		return -1;
 	}
 }
 
-int udp::closeSocket()
+int udp::closeSocket(SOCKET socket)
 {
 	// Close socket and Winsock dll.
-	result = closesocket(udpSocket);
+	int result = closesocket(socket);
 	if (result != 0)
 	{
 		std::cout << "closesocket failed with error: " << WSAGetLastError() << '\n';

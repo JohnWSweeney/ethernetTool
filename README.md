@@ -40,7 +40,7 @@ For troubleshooting embedded systems, its often helpful to stream a counter to a
 
 > *counter stop*
 
-where *destIPaddress* is the destination address, *destPortNumber* is the destination port, *startInteger* is the counter's starting integer, *endInteger* is the counter's ending integer, *delay* is time in milliseconds between counter increments, and entering "loop" for *loop* triggers the counter to repeat continuously. *startInteger* and *endInteger* are 4-byte integers with range from -2147483648 to 2147483647. *delay* is an unsigned 4-byte integer ranging from 0 to 4294967295. Omit the *loop* command to stream the counter once.
+where *destIPaddress* is the destination address, *destPortNumber* is the destination port, *startInteger* is the counter's starting integer, *endInteger* is the counter's ending integer, *delay* is time in milliseconds between counter increments, and entering "loop" for *loop* triggers the counter to repeat continuously. *startInteger* and *endInteger* are 4-byte integers with range from -2,147,483,648 to 2,147,483,647. *delay* is an unsigned 4-byte integer ranging from 0 to 4294967295. Omit the *loop* command to stream the counter once.
 
 For example, enter:
 
@@ -102,9 +102,16 @@ To stop all active threads and exit the app, enter:
 - GUI version.
 
 ## Download
-[ethernetTool v1.4.0](https://github.com/JohnWSweeney/ethernetTool/releases/download/v1.4.0/ethernetTool_v1_4_0.exe) [59 kB]
+[ethernetTool v1.4.1](https://github.com/JohnWSweeney/ethernetTool/releases/download/v1.4.1/ethernetTool_v1_4_1.exe) [66 kB]
 
 ## ChangeLog
+v1.4.1
+- Updated UDP class.
+	- Moved socket error, close responsibilities to calling functions.
+- Updated udpFunctions.cpp with socket error, close responsibilities.
+- Added udpCommands.h/.cpp to handle user input commands.
+- Updated udpThreads.h/.cpp to accomodate above changes.
+
 v1.4.0
 - Added TCP client counter function.
 
@@ -116,7 +123,7 @@ v1.3.0
 v1.2.5
 - Updated tcp class.
 	- Merged shutdown, closeSocket functions into new closeConnection function.
-	- Moved socket close responsibility to calling functions, tcp::closeConnection.
+	- Moved socket error, close responsibility to calling functions, tcp::closeConnection.
 - Updated client/session/server class functions with socket close responsibilities.
 
 v1.2.4
@@ -128,7 +135,7 @@ v1.2.3
 
 v1.2.2
 - Updated tcp, server, session, and client classes.
-- Added tcpCommands .h/cpp to handle server, client commands.
+- Added tcpCommands.h/cpp to handle server, client commands.
 
 v1.2.1
 - Updated sortClientCommands function in sortFunctions.h/cpp, added supporting functions.

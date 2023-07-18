@@ -22,7 +22,7 @@ struct clientCmds
 int getSessionType(std::vector<std::string> tokens, int index, int &sessionType);
 int getClientType(std::vector<std::string> tokens, int index, int &clientType, int &tokenCount);
 int getServerIP(std::vector<std::string> tokens, int index, std::string &serverIP);
-int getPortNum(std::vector<std::string> tokens, int index, int &portNum);
+int getTcpPortNum(std::vector<std::string> tokens, int index, int &portNum);
 int getMsg(std::vector<std::string> tokens, int index, std::string &msg);
 int populateServerCmds(std::vector<std::string> tokens, serverCmds &serverCmds);
 int populateClientCmds(std::vector<std::string> tokens, clientCmds &clientCmds);

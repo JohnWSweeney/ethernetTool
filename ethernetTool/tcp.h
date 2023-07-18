@@ -11,7 +11,6 @@ struct msg
 {
 	char buffer[512] = { 0 };
 	int bufferLen = sizeof(buffer);
-	int msgLen;
 };
 
 class tcp
