@@ -110,7 +110,7 @@ v1.4.1
 	- Moved socket error, close responsibilities to calling functions.
 - Updated udpFunctions.cpp with socket error, close responsibilities.
 - Added udpCommands.h/.cpp to handle user input commands.
-- Updated udpThreads.h/.cpp to accomodate above changes.
+- Updated udpThreads.h/.cpp to accommodate above changes.
 
 v1.4.0
 - Added TCP client counter function.
