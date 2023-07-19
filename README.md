@@ -102,9 +102,14 @@ To stop all active threads and exit the app, enter:
 - GUI version.
 
 ## Download
-[ethernetTool v1.4.1](https://github.com/JohnWSweeney/ethernetTool/releases/download/v1.4.1/ethernetTool_v1_4_1.exe) [66 kB]
+[ethernetTool v1.4.2](https://github.com/JohnWSweeney/ethernetTool/releases/download/v1.4.2/ethernetTool_v1_4_2.exe) [66 kB]
 
 ## ChangeLog
+v1.4.2
+- Added try/catch to startServerThread function in tcpThreads.cpp.
+- Removed tokenCount variable from clientCmds struct.
+	- Updated affected functions getClientType and populateClientCmds in tcpCommands.h/.cpp.
+
 v1.4.1
 - Updated UDP class.
 	- Moved socket error, close responsibilities to calling functions.

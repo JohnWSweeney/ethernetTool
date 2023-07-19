@@ -24,30 +24,26 @@ int getSessionType(std::vector<std::string> tokens, int index, int &sessionType)
 	}
 }
 
-int getClientType(std::vector<std::string> tokens, int index, int &clientType, int &tokenCount)
+int getClientType(std::vector<std::string> tokens, int index, int &clientType)
 {
 	if (tokens[index] == "message")
 	{
 		clientType = 0;
-		tokenCount = 5;
 		return 0;
 	}
 	else if (tokens[index] == "ping")
 	{
 		clientType = 1;
-		tokenCount = 5;
 		return 0;
 	}
 	else if (tokens[index] == "counter")
 	{
 		clientType = 2;
-		tokenCount = 4;
 		return 0;
 	}
 	else if (tokens[index] == "repeat")
 	{
 		clientType = 3;
-		tokenCount = 5;
 		return 0;
 	}
 	else
@@ -150,47 +146,39 @@ int populateClientCmds(std::vector<std::string> tokens, clientCmds &clientCmds)
 	}
 	else
 	{
-		int result = getClientType(tokens, 1, clientCmds.clientType, clientCmds.tokenCount);
+		int result = getClientType(tokens, 1, clientCmds.clientType);
 		if (result != 0)
 		{
 			return 1;
 		}
 	}
 
-	if (tokens.size() < clientCmds.tokenCount)
+	int result = getServerIP(tokens, 2, clientCmds.serverIP);
+	if (result != 0)
 	{
-		std::cout << "Too few client commands.\n";
 		return 1;
 	}
-	else
+
+	result = getTcpPortNum(tokens, 3, clientCmds.serverPortNum);
+	if (result != 0)
 	{
-		int result = getServerIP(tokens, 2, clientCmds.serverIP);
+		return 1;
+	}
+
+	if (clientCmds.clientType == 2) // counter client.
+	{
+		return 0;
+	}
+	else // message or ping client.
+	{
+		result = getMsg(tokens, 4, clientCmds.msg);
 		if (result != 0)
 		{
 			return 1;
-		}
-
-		result = getTcpPortNum(tokens, 3, clientCmds.serverPortNum);
-		if (result != 0)
-		{
-			return 1;
-		}
-
-		if (clientCmds.tokenCount < 5)
-		{
-			return 0;
 		}
 		else
 		{
-			int result = getMsg(tokens, 4, clientCmds.msg);
-			if (result != 0)
-			{
-				return 1;
-			}
-			else
-			{
-				return 0;
-			}
+			return 0;
 		}
 	}
 }

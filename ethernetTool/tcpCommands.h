@@ -12,15 +12,13 @@ struct serverCmds
 struct clientCmds
 {
 	int clientType;
-	int tokenCount;
 	std::string serverIP;
 	int serverPortNum;
 	std::string msg;
-	int delay;
 };
 
 int getSessionType(std::vector<std::string> tokens, int index, int &sessionType);
-int getClientType(std::vector<std::string> tokens, int index, int &clientType, int &tokenCount);
+int getClientType(std::vector<std::string> tokens, int index, int &clientType);
 int getServerIP(std::vector<std::string> tokens, int index, std::string &serverIP);
 int getTcpPortNum(std::vector<std::string> tokens, int index, int &portNum);
 int getMsg(std::vector<std::string> tokens, int index, std::string &msg);

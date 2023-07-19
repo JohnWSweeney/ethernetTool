@@ -15,9 +15,15 @@ void startServerThread(std::vector<std::string> tokens)
 	}
 	else
 	{
-		serverStatus = true;
-		std::thread serverThread(startServer, serverCmds.portNum, serverCmds.sessionType);
-		serverThread.detach();
+		try {
+			serverStatus = true;
+			std::thread serverThread(startServer, serverCmds.portNum, serverCmds.sessionType);
+			serverThread.detach();
+		}
+		catch (...)
+		{
+			std::cout << "Server start failed.\n";
+		}
 	}
 }
 
