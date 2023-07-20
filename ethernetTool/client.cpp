@@ -16,6 +16,10 @@ void Client::run(clientCmds clientCmds)
 	{
 		this->counter(clientCmds);
 	}
+	else if (clientCmds.clientType == 3)
+	{
+		this->repeat(clientCmds);
+	}
 	else
 	{
 		return;
@@ -192,6 +196,58 @@ void Client::counter(clientCmds clientCmds)
 		return;
 	}
 	std::cout << "Client: counter ended.\n";
+}
+
+void Client::repeat(clientCmds clientCmds)
+{
+	tcp repeat;
+	SOCKET socket = INVALID_SOCKET;
+	int result = repeat.openClientSocket(socket, clientCmds.serverIP, clientCmds.serverPortNum);
+	if (result != 0)
+	{
+		std::cout << "Client: repeat.openClientSocket failed.\n";
+		closesocket(socket);
+		WSACleanup();
+		return;
+	}
+
+	// send message every second until user ends function, peer closes connection, or error.
+	const char *sendbuf = clientCmds.msg.c_str();
+	int len = (int)strlen(sendbuf);
+	do {
+		// check if peer has gracefully closed connection.
+		msg sdMsg;
+		result = repeat.rx(socket, sdMsg.buffer, sdMsg.bufferLen);
+		if (result == -1) // peer closed connection gracefully.
+		{
+			std::cout << "Client.repeat: peer closed connection gracefully.\n";
+			clientStatus = false;
+			break;
+		}
+
+		// send message.
+		result = repeat.tx(socket, sendbuf, len);
+		if (result > 0)
+		{
+			std::cout << "Client sent: " << sendbuf << '\n';
+		}
+		else if (result == -1)
+		{
+			std::cout << "Client repeat.tx failed.\n";
+			closesocket(socket);
+			WSACleanup();
+			return;
+		}
+		Sleep(clientCmds.delay);
+	} while (clientStatus);
+
+	// gracefully close connection.
+	result = repeat.closeConnection(socket, true);
+	if (result != 0)
+	{
+		std::cout << "Client repeat.asdf failed.\n";
+	}
+	std::cout << "Client repeat stopped.\n";
 }
 
 void startClient(clientCmds clientCmds)

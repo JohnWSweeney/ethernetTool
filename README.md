@@ -65,8 +65,13 @@ To start or stop a server thread running the echo function, enter:
 > *server echo localPortNumber*
 
 ### Client Message
-To start a client thread to send a message to a server, enter:
+To  send a message to a server, enter:
 > *client message serverIP serverPort yourMessage*
+
+You can continuously send the same message using the *repeat& function by entering:
+> *client repeat serverIP serverPort yourMessage delay*
+
+where *delay* is the time between messages in milliseconds.
 
 ### Client-Server Ping-Pong
 Just for fun, you can ping-pong a message between a client and server. First, start a server that will start a "pong" sessions when a client connects by entering:
@@ -102,9 +107,15 @@ To stop all active threads and exit the app, enter:
 - GUI version.
 
 ## Download
-[ethernetTool v1.4.2](https://github.com/JohnWSweeney/ethernetTool/releases/download/v1.4.2/ethernetTool_v1_4_2.exe) [66 kB]
+[ethernetTool v1.5.0](https://github.com/JohnWSweeney/ethernetTool/releases/download/v1.5.0/ethernetTool_v1_5_0.exe) [69 kB]
 
 ## ChangeLog
+v1.5.0
+- Added TCP client (message) repeat function.
+- Updated tcpCommands.h/.cpp
+	- getInteger (prev. getTcpPortNum) returns generic integers for multiple use cases.
+	- Updated getMsg, populateServerCmds, populateClientCmds to reflect above changes.
+
 v1.4.2
 - Added try/catch to startServerThread function in tcpThreads.cpp.
 - Removed tokenCount variable from clientCmds struct.
