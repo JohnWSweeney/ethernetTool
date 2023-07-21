@@ -156,7 +156,13 @@ void Client::counter(clientCmds clientCmds)
 		return;
 	}
 
-	int i = 0; // counter.
+	int start = clientCmds.startInt;
+	int end = clientCmds.endInt;
+	int delay = clientCmds.delay;
+	bool loop = clientCmds.loop;
+	std::string bufStr;
+	const char *buf;
+	int len;
 	do {
 		// check if peer has gracefully closed connection.
 		msg sdMsg;
@@ -168,24 +174,67 @@ void Client::counter(clientCmds clientCmds)
 			break;
 		}
 
-		// convert int to char, increment on send.
-		std::string bufStr = std::to_string(i);
-		const char *buf = bufStr.c_str();
-		int len = sizeof(buf);
-		result = counter.tx(socket, buf, len);
-		if (result > 0) // counter sent.
+		if (end - start > 0)
 		{
-			std::cout << "Client sent: " << buf << '\n';
-			++i;
+			for (int i = start; i <= end; i++)
+			{
+				if (clientStatus == false) { break; }
+				bufStr = std::to_string(i);
+				buf = bufStr.c_str();
+				len = sizeof(buf);
+				result = counter.tx(socket, buf, len);
+				if (result > 0) // counter sent.
+				{
+					std::cout << "Client sent: " << buf << '\n';
+					Sleep(delay);
+					if (loop == true)
+					{
+						if (i == end)
+						{
+							i = start;
+						}
+					}
+				}
+				else if (result == -1) // counter.tx error.
+				{
+					std::cout << "Client: counter.tx failed.\n";
+					closesocket(socket);
+					WSACleanup();
+					return;
+				}
+			}
 		}
-		else if (result == -1) // counter.tx error.
+		else
 		{
-			std::cout << "Client: counter.tx failed.\n";
-			closesocket(socket);
-			WSACleanup();
-			return;
+			for (int i = start; i >= end; i--)
+			{
+				if (clientStatus == false) { break; }
+				bufStr = std::to_string(i);
+				buf = bufStr.c_str();
+				len = sizeof(buf);
+				result = counter.tx(socket, buf, len);
+				if (result > 0)
+				{
+					std::cout << "Client sent: " << buf << '\n';
+					Sleep(delay);
+					if (loop == true)
+					{
+						if (i == end + 1)
+						{
+							i = start;
+						}
+					}
+				}
+				else if (result == -1) // counter.tx error.
+				{
+					std::cout << "Client: counter.tx failed.\n";
+					closesocket(socket);
+					WSACleanup();
+					return;
+				}
+			}
 		}
-		Sleep(1000);
+		clientStatus = false;
 	} while (clientStatus);
 
 	// gracefully close connection.

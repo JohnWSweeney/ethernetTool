@@ -1,6 +1,6 @@
 # ethernetTool
 
-A Windows console TCP/IP diagnostic app. UDP functions include listen, message, echo, and counter stream. TCP functions include listen and echo servers and client message. The app is built on the Winsock API and supports multithreading.
+A Windows console TCP/IP diagnostic app. UDP functions include listen, message, echo, and counter stream. TCP functions include listen and echo servers and client message. The app is built on the Winsock API and supports multithreading. The Windows executable is compiled with C++14.
 
 ## Functions
 The app opens a console window on startup. Enter the *command* keywords separated by a space. Commands are case-sensitive. Function names are entered first, followed by parameters. For example:
@@ -77,12 +77,12 @@ where *delay* is the time between messages in milliseconds.
 Just for fun, you can ping-pong a message between a client and server. First, start a server that will start a "pong" sessions when a client connects by entering:
 > *server pong portNumber*
 
-When a client connects, the session runs the session class *pong* function that echos messages received and prints "Server: pong" to the console. 
+When a client connects, the session runs the session class *pong* function that echoes messages received and prints "Server: pong" to the console. 
 
 Next, start a client running the client class *ping* function by entering:
 > *client ping serverIP serverPortNumber message*
 
-The client sends *message* to the server and then echos subsequent messages received, printing "Client: ping" to the console. The client and server will ping-pong the message indefinitely, with 1 second delays between volleys. You can stop the volleys on the server side by entering:
+The client sends *message* to the server and then echoes subsequent messages received, printing "Client: ping" to the console. The client and server will ping-pong the message indefinitely, with 1 second delays between volleys. You can stop the volleys on the server side by entering:
 > *session stop*
 
 or on the client side entering:
@@ -94,6 +94,11 @@ To stream a counter from a client, enter:
 
 The counter is an *int* data type initialized to zero and sends the next increment after a one second delay. You can stop the counter by entering:
 > *client stop*
+
+Similar to the UDP counter, you can create a custom counter by entering:
+>*client counter serverIP serverPort startInt endInt delay loop*
+
+Again, *startInt/entInt* are 32-bit integers ranging from -2,147,483,648 to 2,147,483,647 and *delay* is a 32-bit integer ranging from 0 to 2,147,483,647 (absolute value of signed int), representing the time increment in milliseconds. Omit the *loop* command to stream the counter once.
 
 ### App Control
 To stop all active threads, enter:
@@ -107,9 +112,14 @@ To stop all active threads and exit the app, enter:
 - GUI version.
 
 ## Download
-[ethernetTool v1.5.0](https://github.com/JohnWSweeney/ethernetTool/releases/download/v1.5.0/ethernetTool_v1_5_0.exe) [69 kB]
+[ethernetTool v1.6.0](https://github.com/JohnWSweeney/ethernetTool/releases/download/v1.6.0/ethernetTool_v1_6_0.exe) [72 kB]
 
 ## ChangeLog
+v1.6.0
+- Added start/end integer, delay, and loop parameters to TCP client counter function.		
+	- Updated tcpCommands.h/.cpp getInteger and populateClientCmds functions.
+	- Fixed bug in populateClientCmds causing crash when too few commands are entered.
+
 v1.5.0
 - Added TCP client (message) repeat function.
 - Updated tcpCommands.h/.cpp
